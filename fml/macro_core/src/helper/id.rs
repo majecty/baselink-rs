@@ -26,10 +26,6 @@ pub fn id_trait_ident(the_trait: &syn::ItemTrait) -> Ident {
     quote::format_ident!("ID_TRAIT_{}", the_trait.ident)
 }
 
-pub fn id_trait_ident_from_ident(the_trait_ident: &syn::Ident) -> Ident {
-    quote::format_ident!("ID_TRAIT_{}", the_trait_ident)
-}
-
 fn lit_index(index: usize) -> syn::Lit {
     // We put a distinctive offset for easy debug.
     syn::Lit::Int(syn::LitInt::new(&format!("{}", index + 7), Span::call_site()))
