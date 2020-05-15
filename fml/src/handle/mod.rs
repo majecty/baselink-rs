@@ -138,6 +138,19 @@ macro_rules! service_import {
     }
 }
 
+#[cfg(debug_assertions)]
+#[macro_export]
+macro_rules! service_dispatch {
+    ($service_trait: path, $object: expr, $method: expr, $arguments: expr, $return_buffer: expr) => {
+        <dyn $service_trait as fml::service_prelude::service_env::DispatchService<dyn $service_trait>>::dispatch(
+            $object,
+            $method,
+            $arguments,
+            $return_buffer,
+        )
+    };
+}
+
 /// TODO: Replace this with LinkBootstrapping.
 #[derive(PartialEq, Serialize, Deserialize, Debug)]
 pub struct HandleExchange {
