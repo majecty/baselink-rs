@@ -20,10 +20,10 @@ pub mod id;
 pub mod serde_support;
 pub mod table;
 
-pub use std::sync::Arc;
 use super::port::PortId;
 pub use dispatch::PortDispatcher;
 use serde::{Deserialize, Serialize};
+pub use std::sync::Arc;
 
 pub type MethodId = u32;
 pub type TraitId = u16;
@@ -90,7 +90,7 @@ impl HandleInstance {
 }
 
 /// All service trait must has this as a supertrait.
-pub trait Service: dispatch::ServiceDispatcher + std::fmt::Debug + intertrait::CastFrom + Send + Sync {
+pub trait Service: dispatch::ServiceDispatcher + std::fmt::Debug + intertrait::CastFromSync + Send + Sync {
     fn get_handle(&self) -> &HandleInstance;
     fn get_handle_mut(&mut self) -> &mut HandleInstance;
 }

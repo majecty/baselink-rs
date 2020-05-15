@@ -22,7 +22,7 @@ use fml::*;
 use once_cell::sync::OnceCell;
 use std::cell::Cell;
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 thread_local!(static INSTANCE_KEY: Cell<u32> = Cell::new(0));
 

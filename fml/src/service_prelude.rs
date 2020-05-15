@@ -36,5 +36,5 @@ pub mod service_env_mock {
     pub use crate::port::{PacketHeader, Port, PortId};
 }
 
-pub use intertrait::{cast::CastBox, Caster, cast::CastArc, cast::CastRef};
+pub use intertrait::{cast::CastArc, Caster};
 pub use std::sync::Arc;

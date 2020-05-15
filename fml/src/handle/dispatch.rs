@@ -74,16 +74,11 @@ pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Arc<
 
     Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_exporter = port_id;
     Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().id.trait_id = trait_id;
-    Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_importer = port_table.map.get(&port_id).unwrap().1;
+    Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_importer =
+        port_table.map.get(&port_id).unwrap().1;
 
     let port = &port_table.map.get(&port_id).expect("PortTable corrupted").2;
-    port.dispatcher_get()
-        .service_table
-        .write()
-        .unwrap()
-        .create(handle_to_register)
-        .get_handle()
-        .careful_clone()
+    port.dispatcher_get().service_table.write().unwrap().create(handle_to_register).get_handle().careful_clone()
 }
 
 pub fn delete(port_id: PortId, handle: ServiceObjectId) {
