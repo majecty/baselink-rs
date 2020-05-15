@@ -22,7 +22,7 @@ pub use fml::SBox;
 
 #[fml_macro::service(service_env, a)]
 pub trait HelloFactory: fml::Service {
-    fn create(&self, name: &String) -> SBox<dyn HelloRobot>;
+    fn create(&self, name: &str) -> SBox<dyn HelloRobot>;
 }
 
 #[fml_macro::service(service_env, a)]

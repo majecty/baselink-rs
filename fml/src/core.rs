@@ -16,7 +16,7 @@
 
 use crate::context::{global, single_process_support, Config, Context, Custom, FmlConfig, PortTable};
 use crate::handle::{HandlePreset, PortDispatcher};
-use crate::port::{PortId, Port};
+use crate::port::{Port, PortId};
 use cbsb::execution::executee;
 use cbsb::ipc::{intra, DefaultIpc, Ipc};
 use std::collections::HashMap;
@@ -87,7 +87,11 @@ pub fn run_control_loop<I: Ipc, C: Custom, H: HandlePreset>(
 
             let old = port_table.map.insert(
                 port_id,
-                (port_config, counter_port_id, create_port(port_id, ipc_type, ipc_config, dispather, instance_key, &config_fml)),
+                (
+                    port_config,
+                    counter_port_id,
+                    create_port(port_id, ipc_type, ipc_config, dispather, instance_key, &config_fml),
+                ),
             );
             // we assert before drop old to avoid (hard-to-debug) blocking.
             assert!(old.is_none(), "You must unlink first to link an existing port");

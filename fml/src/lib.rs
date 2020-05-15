@@ -33,8 +33,10 @@ pub use context::{
     InstanceKey,
 };
 pub use handle::id::IdMap;
+pub use handle::SBox;
 pub use handle::{
-    dispatch::ServiceDispatcher, HandleExchange, HandleInstance, HandlePreset, MethodId, Service, TraitId,
+    dispatch::ServiceDispatcher, HandleExchange, HandleInstance, HandlePreset, MethodId, Service, ServiceObjectId,
+    TraitId,
 };
 pub use port::PacketHeader;
-pub use handle::SBox;
+pub use port::PortId;

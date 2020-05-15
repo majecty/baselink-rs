@@ -15,10 +15,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use crate::port::server::port_thread_local;
 pub use intertrait::{cast::CastBox, Caster};
 use serde::de::{Deserialize, Deserializer};
 use serde::ser::{Serialize, Serializer};
-use crate::port::server::port_thread_local;
 
 impl<T: ?Sized + Service + ExportService<T>> Serialize for SBox<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

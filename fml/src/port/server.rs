@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::PacketHeader;
+use super::PortId;
 use super::{DELETE_INDICATOR, SLOT_CALL_OR_RETURN_INDICATOR};
 use crate::context::single_process_support;
 use crate::handle::{dispatch::delete, PortDispatcher};
@@ -23,9 +24,8 @@ use crossbeam::channel::{bounded, Receiver, Sender};
 use std::io::Cursor;
 use std::sync::Arc;
 use std::thread;
-use super::PortId;
 
-/// This manages thread-local keys for port, which will be used in serialization of 
+/// This manages thread-local keys for port, which will be used in serialization of
 /// SBox. Note that this is required even in the inter-process setup.
 /// TODO: check that serde doens't spawn a thread while serializing.
 pub mod port_thread_local {
@@ -145,7 +145,7 @@ impl Server {
     ) -> Self {
         Server {
             receiver_thread: Some(thread::spawn(move || {
-                receiver(ipc_send, ipc_recv, dispatcher, instance_key,port_id, max_threads, channel_capcity)
+                receiver(ipc_send, ipc_recv, dispatcher, instance_key, port_id, max_threads, channel_capcity)
             })),
         }
     }

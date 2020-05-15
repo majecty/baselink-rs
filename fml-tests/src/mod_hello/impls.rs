@@ -23,7 +23,7 @@ pub struct Factory {
 }
 
 impl HelloFactory for Factory {
-    fn create(&self, name: &String) -> SBox<dyn HelloRobot> {
+    fn create(&self, name: &str) -> SBox<dyn HelloRobot> {
         SBox::new(Box::new(Robot {
             handle: Default::default(),
             name: name.to_string(),

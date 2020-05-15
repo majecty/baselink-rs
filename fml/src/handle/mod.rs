@@ -127,18 +127,19 @@ pub trait DispatchService<T: ?Sized + Service> {
 #[macro_export]
 macro_rules! service_export {
     ($service_trait: path, $port: expr, $arg: expr) => {
-        <dyn $service_trait as fml::service_prelude::service_env::ExportService<dyn $service_trait>>::export($port, $arg) 
-    }
+        <dyn $service_trait as fml::service_prelude::service_env::ExportService<dyn $service_trait>>::export(
+            $port, $arg,
+        )
+    };
 }
 
 #[macro_export]
 macro_rules! service_import {
     ($service_trait: path, $arg: expr) => {
-        <dyn $service_trait as fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import($arg) 
-    }
+        <dyn $service_trait as fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import($arg)
+    };
 }
 
-#[cfg(debug_assertions)]
 #[macro_export]
 macro_rules! service_dispatch {
     ($service_trait: path, $object: expr, $method: expr, $arguments: expr, $return_buffer: expr) => {
@@ -178,21 +179,4 @@ pub mod service_context {
     pub use super::call::delete as delete_remote;
     pub use super::dispatch::delete;
     pub use super::dispatch::register;
-}
-
-/// Mock functions
-pub mod service_context_test {
-    pub use super::*;
-    pub fn delete(port_id: PortId, handle: ServiceObjectId) {}
-    pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Box<dyn Service>) -> HandleInstance {
-        Default::default()
-    }
-    pub fn call<S: serde::Serialize, D: serde::de::DeserializeOwned>(
-        handle: &HandleInstance,
-        method: MethodId,
-        args: &S,
-    ) -> D {
-        panic!("call() called")
-    }
-    pub fn delete_remote(handle: &HandleInstance) {}
 }

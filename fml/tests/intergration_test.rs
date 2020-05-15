@@ -20,40 +20,94 @@ extern crate linkme;
 #[macro_use]
 extern crate intertrait;
 
-pub use fml::impl_prelude::*;
-pub use fml::service_prelude::*;
+pub mod mock;
+mod service_env_test {
+    pub use super::mock as service_context;
+    pub use fml::service_prelude::service_env_mock::*;
+}
 
+use fml::impl_prelude::*;
+use fml::service_prelude::*;
+use fml::*;
+use std::io::Cursor;
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+pub struct F{
+
+}
 #[fml_macro::service(service_env_test, a)]
 pub trait TestService: fml::Service {
     /// Make an invitation for a single visit toward itself
-    fn fn1(&self, a1: String, a2: u8) -> SBox<dyn TestService>;
+    fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SBox<dyn TestService>;
 
     /// Returns name of the next module to visit
-    fn fn2(&self, a2: Vec<(u8, String)>) -> String;
+    fn fn2(&self, a2: &u8) -> String;
+
+    fn fn3(&self, f: F);
+}
+
+impl mock::TestDefault for SBox<dyn TestService> {
+    fn default() -> Self {
+        SBox::new(Box::new(TestImpl {
+            handle: Default::default(),
+            name: Default::default()
+        }))
+    }
+}
+
+impl mock::TestDefault for String {
+    fn default() -> Self {
+        "Default".to_owned()
+    }
+}
+
+impl mock::TestDefault for () {
+    fn default() -> Self {
+        ()
+    }
 }
 
 #[fml_macro::service_impl(impl_env, TestService)]
 pub struct TestImpl {
     pub handle: fml::HandleInstance,
+    pub name: String
 }
 
 impl TestService for TestImpl {
-    fn fn1(&self, a1: String, a2: u8) -> SBox<dyn TestService> {
+    fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SBox<dyn TestService> {
         SBox::new(Box::new(TestImpl {
             handle: Default::default(),
+            name: format!("{}{}{}", a1, a2, a3.len())
         }))
     }
 
-    fn fn2(&self, a2: Vec<(u8, String)>) -> String {
-        "Hello".to_owned()
+    fn fn2(&self, a2: &u8) -> String {
+        format!("{}", a2)
+    }
+
+    fn fn3(&self, f: F) {
+        
     }
 }
 
 #[test]
 fn service_1() {
-    let s = <dyn TestService as service_env::ImportService<dyn TestService>>::import(
-        Default::default()
-    );
+    mock::set_key(1);
+    let s = <dyn TestService as service_env::ImportService<dyn TestService>>::import(Default::default());
+    let x = s.fn1("qwe".to_owned(), "qweqwe", b"123").unwrap();
+    x.fn2(&3);
+}
+
+#[test]
+fn service_2() {
+    /*
+    mock::set_key(2);
+    let s = <dyn TestService as service_env::ImportService<dyn TestService>>::import(Default::default());
+    
+    service_dispatch!(TestService, s, 8, &serde_cbor::to_vec(&1234), );
     let x = s.fn1("qwe".to_owned(), 1).unwrap();
-    x.fn2(Default::default());
+    println!("{}", mock::get_log());
+    drop(s);
+    println!("{}", mock::get_log());
+    */
 }
