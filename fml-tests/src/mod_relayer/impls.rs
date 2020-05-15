@@ -17,6 +17,7 @@
 use super::get_context;
 use crate::services::*;
 use fml::impl_prelude::*;
+use std::sync::Arc;
 
 #[fml_macro::service_impl(impl_env, RelayerFactory)]
 pub struct OrdinaryFactory {

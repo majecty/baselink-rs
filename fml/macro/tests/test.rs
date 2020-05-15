@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extern crate fml_macro_core;
-extern crate proc_macro2;
-
 #[test]
 fn macro_errorful() {
     let t = trybuild::TestCases::new();

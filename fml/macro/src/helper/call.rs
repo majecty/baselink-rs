@@ -99,8 +99,8 @@ pub fn generate_imported_struct(
             }
         }
         impl #fml_path::ImportService<dyn #trait_ident> for dyn #trait_ident {
-            fn import(handle: #fml_path::HandleInstance) -> Arc<dyn #trait_ident>  {
-                Arc::new(#struct_ident  {
+            fn import(handle: #fml_path::HandleInstance) -> std::sync::Arc<dyn #trait_ident>  {
+                std::sync::Arc::new(#struct_ident  {
                     handle,
                 })
             }

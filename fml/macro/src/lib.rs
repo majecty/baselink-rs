@@ -18,32 +18,34 @@
 // happens in fml-macro-core. We separte these two since Rust strictly requires
 // to have only macro for proc-macro crate.
 
-extern crate fml_macro_core;
-extern crate proc_macro;
-extern crate proc_macro2;
-extern crate proc_macro_crate;
+#[macro_use]
+extern crate quote;
+
+mod helper;
+mod service;
+mod service_impl;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 
 #[proc_macro_attribute]
 pub fn service(args: TokenStream, input: TokenStream) -> TokenStream {
-    TokenStream::from(fml_macro_core::service(TokenStream2::from(args), TokenStream2::from(input)))
+    TokenStream::from(service::service(TokenStream2::from(args), TokenStream2::from(input)))
 }
 
 #[proc_macro_attribute]
 pub fn service_impl(args: TokenStream, input: TokenStream) -> TokenStream {
-    TokenStream::from(fml_macro_core::service_impl(TokenStream2::from(args), TokenStream2::from(input)))
+    TokenStream::from(service_impl::service_impl(TokenStream2::from(args), TokenStream2::from(input)))
 }
 
 #[proc_macro_attribute]
 pub fn service_debug(args: TokenStream, input: TokenStream) -> TokenStream {
-    println!("{}", fml_macro_core::service(TokenStream2::from(args), TokenStream2::from(input)));
+    println!("{}", service::service(TokenStream2::from(args), TokenStream2::from(input)));
     TokenStream::new()
 }
 
 #[proc_macro_attribute]
 pub fn service_impl_debug(args: TokenStream, input: TokenStream) -> TokenStream {
-    println!("{}", fml_macro_core::service_impl(TokenStream2::from(args), TokenStream2::from(input)));
+    println!("{}", service_impl::service_impl(TokenStream2::from(args), TokenStream2::from(input)));
     TokenStream::new()
 }

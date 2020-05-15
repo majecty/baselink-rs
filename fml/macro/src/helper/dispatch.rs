@@ -140,7 +140,7 @@ pub fn generate_dispatch(
     let trait_id_ident = super::id::id_trait_ident(&the_trait);
     let result = quote! {
         impl #fml_path::ExportService<dyn #trait_ident> for dyn #trait_ident {
-            fn export(port_id: #fml_path::PortId, handle: Arc<dyn #trait_ident>) -> #fml_path::HandleInstance {
+            fn export(port_id: #fml_path::PortId, handle: std::sync::Arc<dyn #trait_ident>) -> #fml_path::HandleInstance {
                 #fml_path::service_context::register(port_id, #trait_id_ident.load(#fml_path::ID_ORDERING), handle.cast::<dyn #fml_path::Service>().expect("Trait casting failed"))
             }
         }
