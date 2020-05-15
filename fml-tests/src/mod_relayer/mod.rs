@@ -29,8 +29,8 @@ pub struct MyContext {
     number: usize,
     /// My index
     index: usize,
-    schedule: RwLock<Option<Box<dyn Schedule>>>,
-    factories: RwLock<HashMap<String, Box<dyn RelayerFactory>>>,
+    schedule: RwLock<Option<Arc<dyn Schedule>>>,
+    factories: RwLock<HashMap<String, Arc<dyn RelayerFactory>>>,
     answers: RwLock<HashMap<String, (Vec<String>, String)>>,
 }
 
@@ -40,9 +40,9 @@ impl fml::Custom for MyContext {
         let mut factories = HashMap::new();
         factories.insert(
             context.id.clone(),
-            Box::new(OrdinaryFactory {
+            Arc::new(OrdinaryFactory {
                 handle: Default::default(),
-            }) as Box<dyn RelayerFactory>,
+            }) as Arc<dyn RelayerFactory>,
         );
 
         MyContext {
@@ -72,7 +72,7 @@ impl HandlePreset for Preset {
             let id = service_export!(
                 RelayerFactory,
                 ctx.ports.read().unwrap().find(&format!("Module{}", i)).unwrap(),
-                Box::new(OrdinaryFactory {
+                Arc::new(OrdinaryFactory {
                     handle: Default::default(),
                 })
             );

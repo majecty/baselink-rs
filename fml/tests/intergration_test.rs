@@ -38,7 +38,7 @@ pub struct F{
 #[fml_macro::service(service_env_test, a)]
 pub trait TestService: fml::Service {
     /// Make an invitation for a single visit toward itself
-    fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SBox<dyn TestService>;
+    fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SArc<dyn TestService>;
 
     /// Returns name of the next module to visit
     fn fn2(&self, a2: &u8) -> String;
@@ -46,9 +46,9 @@ pub trait TestService: fml::Service {
     fn fn3(&self, f: F);
 }
 
-impl mock::TestDefault for SBox<dyn TestService> {
+impl mock::TestDefault for SArc<dyn TestService> {
     fn default() -> Self {
-        SBox::new(Box::new(TestImpl {
+        SArc::new(Arc::new(TestImpl {
             handle: Default::default(),
             name: Default::default()
         }))
@@ -74,8 +74,8 @@ pub struct TestImpl {
 }
 
 impl TestService for TestImpl {
-    fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SBox<dyn TestService> {
-        SBox::new(Box::new(TestImpl {
+    fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SArc<dyn TestService> {
+        SArc::new(Arc::new(TestImpl {
             handle: Default::default(),
             name: format!("{}{}{}", a1, a2, a3.len())
         }))

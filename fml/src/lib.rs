@@ -33,7 +33,7 @@ pub use context::{
     InstanceKey,
 };
 pub use handle::id::IdMap;
-pub use handle::SBox;
+pub use handle::SArc;
 pub use handle::{
     dispatch::ServiceDispatcher, HandleExchange, HandleInstance, HandlePreset, MethodId, Service, ServiceObjectId,
     TraitId,

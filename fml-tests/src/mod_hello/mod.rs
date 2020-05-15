@@ -24,7 +24,7 @@ use std::sync::RwLock;
 
 pub struct MyContext {
     number: usize,
-    factories: RwLock<HashMap<String, Box<dyn HelloFactory>>>,
+    factories: RwLock<HashMap<String, Arc<dyn HelloFactory>>>,
 }
 
 impl fml::Custom for MyContext {
@@ -33,9 +33,9 @@ impl fml::Custom for MyContext {
         let mut factories = HashMap::new();
         factories.insert(
             context.id.clone(),
-            Box::new(Factory {
+            Arc::new(Factory {
                 handle: Default::default(),
-            }) as Box<dyn HelloFactory>,
+            }) as Arc<dyn HelloFactory>,
         );
         MyContext {
             number,
@@ -63,7 +63,7 @@ impl HandlePreset for Preset {
                 handles: vec![service_export!(
                     HelloFactory,
                     ctx.ports.read().unwrap().find(&importer).unwrap(),
-                    Box::new(Factory {
+                    Arc::new(Factory {
                         handle: Default::default(),
                     })
                 )],

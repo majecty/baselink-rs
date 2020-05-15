@@ -56,7 +56,7 @@ impl HandlePreset for Preset {
                 handles: vec![service_export!(
                     Schedule,
                     ctx.ports.read().unwrap().find(&importer).unwrap(),
-                    Box::new(MySchedule {
+                    Arc::new(MySchedule {
                         handle: Default::default(),
                     })
                 )],

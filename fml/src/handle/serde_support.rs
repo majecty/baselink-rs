@@ -20,7 +20,7 @@ pub use intertrait::{cast::CastBox, Caster};
 use serde::de::{Deserialize, Deserializer};
 use serde::ser::{Serialize, Serializer};
 
-impl<T: ?Sized + Service + ExportService<T>> Serialize for SBox<T> {
+impl<T: ?Sized + Service + ExportService<T>> Serialize for SArc<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer, {
@@ -31,11 +31,11 @@ impl<T: ?Sized + Service + ExportService<T>> Serialize for SBox<T> {
     }
 }
 
-impl<'de, T: ?Sized + Service + ImportService<T>> Deserialize<'de> for SBox<T> {
+impl<'de, T: ?Sized + Service + ImportService<T>> Deserialize<'de> for SArc<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>, {
         let handle = HandleInstance::deserialize(deserializer)?;
-        Ok(SBox::new(T::import(handle)))
+        Ok(SArc::new(T::import(handle)))
     }
 }

@@ -18,11 +18,11 @@
 extern crate codechain_fml as fml;
 
 pub use fml::service_prelude::*;
-pub use fml::SBox;
+pub use fml::SArc;
 
 #[fml_macro::service(service_env, a)]
 pub trait HelloFactory: fml::Service {
-    fn create(&self, name: &str) -> SBox<dyn HelloRobot>;
+    fn create(&self, name: &str) -> SArc<dyn HelloRobot>;
 }
 
 #[fml_macro::service(service_env, a)]
@@ -65,7 +65,7 @@ pub trait Schedule: fml::Service {
 #[fml_macro::service(service_env, a)]
 pub trait RelayerFactory: fml::Service {
     /// Make an invitation for a single visit toward itself
-    fn create(&self, key: String, current: usize, destination: String) -> SBox<dyn RelayerMachine>;
+    fn create(&self, key: String, current: usize, destination: String) -> SArc<dyn RelayerMachine>;
 
     /// Returns name of the next module to visit
     fn ask_path(&self, key: String, current: usize) -> Answer;

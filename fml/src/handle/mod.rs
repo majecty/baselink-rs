@@ -20,6 +20,7 @@ pub mod id;
 pub mod serde_support;
 pub mod table;
 
+pub use std::sync::Arc;
 use super::port::PortId;
 pub use dispatch::PortDispatcher;
 use serde::{Deserialize, Serialize};
@@ -94,18 +95,18 @@ pub trait Service: dispatch::ServiceDispatcher + std::fmt::Debug + intertrait::C
     fn get_handle_mut(&mut self) -> &mut HandleInstance;
 }
 
-pub struct SBox<T: ?Sized + Service> {
-    value: std::cell::Cell<Option<Box<T>>>,
+pub struct SArc<T: ?Sized + Service> {
+    value: std::cell::Cell<Option<Arc<T>>>,
 }
 
-impl<T: ?Sized + Service> SBox<T> {
-    pub fn new(value: Box<T>) -> Self {
-        SBox {
+impl<T: ?Sized + Service> SArc<T> {
+    pub fn new(value: Arc<T>) -> Self {
+        SArc {
             value: std::cell::Cell::new(Some(value)),
         }
     }
 
-    pub fn unwrap(&self) -> Box<T> {
+    pub fn unwrap(&self) -> Arc<T> {
         self.value.take().unwrap()
     }
 }
@@ -113,11 +114,11 @@ impl<T: ?Sized + Service> SBox<T> {
 // These three traits are very special: they are associated with a specific trait.
 // However use (module author) will never use these, but the generated code will.
 pub trait ImportService<T: ?Sized + Service> {
-    fn import(handle: HandleInstance) -> Box<T>;
+    fn import(handle: HandleInstance) -> Arc<T>;
 }
 
 pub trait ExportService<T: ?Sized + Service> {
-    fn export(port_id: PortId, object: Box<T>) -> HandleInstance;
+    fn export(port_id: PortId, object: Arc<T>) -> HandleInstance;
 }
 
 pub trait DispatchService<T: ?Sized + Service> {
@@ -159,7 +160,7 @@ pub struct HandleExchange {
     pub exporter: String,
     /// Id of importer (same as that in Config)
     pub importer: String,
-    /// Handles. Importer must cast these to Box<dyn SomeHandle> itself.
+    /// Handles. Importer must cast these to Arc<dyn SomeHandle> itself.
     pub handles: Vec<HandleInstance>,
     /// Opaque argument
     pub argument: Vec<u8>,

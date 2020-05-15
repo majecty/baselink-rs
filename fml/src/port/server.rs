@@ -26,7 +26,7 @@ use std::sync::Arc;
 use std::thread;
 
 /// This manages thread-local keys for port, which will be used in serialization of
-/// SBox. Note that this is required even in the inter-process setup.
+/// SArc. Note that this is required even in the inter-process setup.
 /// TODO: check that serde doens't spawn a thread while serializing.
 pub mod port_thread_local {
     use std::cell::Cell;

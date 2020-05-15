@@ -56,7 +56,7 @@ pub trait TestDefault {
 pub fn delete(port_id: PortId, handle: ServiceObjectId) {
     log(format!("DELETE/{}/{:?}", port_id, handle));
 }
-pub fn register(port_id: PortId, trait_id: TraitId, handle_to_register: Box<dyn Service>) -> HandleInstance {
+pub fn register(port_id: PortId, trait_id: TraitId, handle_to_register: Arc<dyn Service>) -> HandleInstance {
     log(format!("REGISTER/{}/{}/{:?}", port_id, trait_id, handle_to_register.get_handle()));
     Default::default()
 }

@@ -64,7 +64,7 @@ impl PortDispatcher {
     }
 }
 
-pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Box<dyn Service>) -> HandleInstance {
+pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Arc<dyn Service>) -> HandleInstance {
     #[cfg(fml_statistics)]
     {
         crate::statistics::CREATE_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -72,16 +72,16 @@ pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Box<
     let context = context::global::get();
     let port_table = context.read().unwrap();
 
-    handle_to_register.get_handle_mut().port_id_exporter = port_id;
-    handle_to_register.get_handle_mut().id.trait_id = trait_id;
-    handle_to_register.get_handle_mut().port_id_importer = port_table.map.get(&port_id).unwrap().1;
+    Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_exporter = port_id;
+    Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().id.trait_id = trait_id;
+    Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_importer = port_table.map.get(&port_id).unwrap().1;
 
     let port = &port_table.map.get(&port_id).expect("PortTable corrupted").2;
     port.dispatcher_get()
         .service_table
         .write()
         .unwrap()
-        .create(Arc::from(handle_to_register))
+        .create(handle_to_register)
         .get_handle()
         .careful_clone()
 }

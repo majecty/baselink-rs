@@ -24,8 +24,8 @@ pub struct OrdinaryFactory {
 }
 
 impl RelayerFactory for OrdinaryFactory {
-    fn create(&self, key: String, current: usize, destination: String) -> SBox<dyn RelayerMachine> {
-        SBox::new(Box::new(OrdinaryMachine {
+    fn create(&self, key: String, current: usize, destination: String) -> SArc<dyn RelayerMachine> {
+        SArc::new(Arc::new(OrdinaryMachine {
             handle: Default::default(),
             key,
             current: current + 1,
