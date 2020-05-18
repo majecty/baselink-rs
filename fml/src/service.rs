@@ -133,18 +133,14 @@ pub trait IdOfService<T: ?Sized + Service> {
 #[macro_export]
 macro_rules! service_export {
     ($service_trait: path, $port_id: expr, $arg: expr) => {
-        <dyn $service_trait as codechain_fml::env::ExportService<dyn $service_trait>>::export(
-            $port_id, $arg,
-        )
+        <dyn $service_trait as codechain_fml::env::ExportService<dyn $service_trait>>::export($port_id, $arg)
     };
 }
 
 #[macro_export]
 macro_rules! service_import {
     ($service_trait: path, $arg: expr) => {
-        <dyn $service_trait as codechain_fml::env::ImportService<dyn $service_trait>>::import(
-            $arg,
-        )
+        <dyn $service_trait as codechain_fml::env::ImportService<dyn $service_trait>>::import($arg)
     };
 }
 
