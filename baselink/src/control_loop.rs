@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use fml::*;
+use crate::bootstrap::*;
+use crate::context::*;
 use cbsb::execution::executee;
 use cbsb::ipc::{intra, DefaultIpc, Ipc};
+use fml::*;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use crate::context::*;
-use crate::bootstrap::*;
 
 pub fn recv<I: Ipc, T: serde::de::DeserializeOwned>(ctx: &executee::Context<I>) -> T {
     serde_cbor::from_slice(&ctx.ipc.as_ref().unwrap().recv(None).unwrap()).unwrap()
@@ -79,7 +79,7 @@ pub fn run_control_loop<I: Ipc, H: HandlePreset>(
     global::set(ports);
     crate::context::set_module_config(config);
     initializer();
-    
+
     loop {
         let message: String = recv(&ctx);
         if message == "link" {

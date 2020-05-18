@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use fml::HandleInstance;
+use serde::{Deserialize, Serialize};
 
 /// TODO: Replace this with LinkBootstrapping.
 #[derive(PartialEq, Serialize, Deserialize, Debug)]

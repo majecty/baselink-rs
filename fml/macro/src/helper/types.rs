@@ -16,14 +16,18 @@
 
 /// In addition, it coverts str->String and [] -> Vec
 pub fn is_ref(the_type: &syn::Type) -> Result<Option<syn::Type>, String> {
-    if *the_type == syn::parse2::<syn::Type>(quote! {
-        &str
-    })
-    .unwrap() {
-        return Ok(Some(syn::parse2::<syn::Type>(quote! {
-            String
+    if *the_type
+        == syn::parse2::<syn::Type>(quote! {
+            &str
         })
-        .unwrap()))
+        .unwrap()
+    {
+        return Ok(Some(
+            syn::parse2::<syn::Type>(quote! {
+                String
+            })
+            .unwrap(),
+        ))
     }
 
     match the_type {
@@ -35,11 +39,13 @@ pub fn is_ref(the_type: &syn::Type) -> Result<Option<syn::Type>, String> {
                 return Err("Mutable".to_owned())
             }
             match *x.elem {
-                syn::Type::Slice(_) => Ok(Some(syn::parse2::<syn::Type>(quote! {
-                    Vec<_>
-                })
-                .unwrap())),
-                _ => Ok(Some((*x.elem).clone()))
+                syn::Type::Slice(_) => Ok(Some(
+                    syn::parse2::<syn::Type>(quote! {
+                        Vec<_>
+                    })
+                    .unwrap(),
+                )),
+                _ => Ok(Some((*x.elem).clone())),
             }
         }
         _ => Ok(None),

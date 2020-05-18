@@ -69,5 +69,5 @@ macro_rules! context_provider {
                 }
             }
         }
-    }
+    };
 }

@@ -33,9 +33,7 @@ use std::io::Cursor;
 use std::sync::Arc;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct F{
-
-}
+pub struct F {}
 #[fml_macro::service(service_env_test, a)]
 pub trait TestService: fml::Service {
     /// Make an invitation for a single visit toward itself
@@ -51,7 +49,7 @@ impl mock::TestDefault for SArc<dyn TestService> {
     fn default() -> Self {
         SArc::new(Arc::new(TestImpl {
             handle: Default::default(),
-            name: Default::default()
+            name: Default::default(),
         }))
     }
 }
@@ -71,14 +69,14 @@ impl mock::TestDefault for () {
 #[fml_macro::service_impl(impl_env, TestService)]
 pub struct TestImpl {
     pub handle: fml::HandleInstance,
-    pub name: String
+    pub name: String,
 }
 
 impl TestService for TestImpl {
     fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SArc<dyn TestService> {
         SArc::new(Arc::new(TestImpl {
             handle: Default::default(),
-            name: format!("{}{}{}", a1, a2, a3.len())
+            name: format!("{}{}{}", a1, a2, a3.len()),
         }))
     }
 
@@ -86,9 +84,7 @@ impl TestService for TestImpl {
         format!("{}", a2)
     }
 
-    fn fn3(&self, f: F) {
-        
-    }
+    fn fn3(&self, f: F) {}
 }
 
 #[test]
@@ -104,7 +100,7 @@ fn service_2() {
     /*
     mock::set_key(2);
     let s = <dyn TestService as service_env::ImportService<dyn TestService>>::import(Default::default());
-    
+
     service_dispatch!(TestService, s, 8, &serde_cbor::to_vec(&1234), );
     let x = s.fn1("qwe".to_owned(), 1).unwrap();
     println!("{}", mock::get_log());

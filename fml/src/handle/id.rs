@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::{MethodId, TraitId};
-use crate::context::{InstanceKey};
+use crate::context::InstanceKey;
 use linkme::distributed_slice;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};

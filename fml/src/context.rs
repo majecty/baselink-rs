@@ -20,7 +20,7 @@ use crate::port::Port;
 use crate::port::PortId;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::{RwLock};
+use std::sync::RwLock;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FmlConfig {
@@ -84,7 +84,7 @@ pub mod global {
     use super::*;
     use single_process_support as codechain_fml;
 
-    context_provider!{RwLock<PortTable>}
+    context_provider! {RwLock<PortTable>}
     pub fn get() -> &'static Context {
         context_provider_mod::get()
     }
@@ -97,4 +97,3 @@ pub mod global {
         context_provider_mod::remove()
     }
 }
-
