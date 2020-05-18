@@ -42,10 +42,10 @@ fn get_key() -> u32 {
 
 static LOG: OnceCell<RwLock<HashMap<u32, String>>> = OnceCell::new();
 fn log(s: String) {
-    LOG.get_or_init(|| Default::default()).write().unwrap().insert(get_key(), s);
+    LOG.get_or_init(Default::default).write().unwrap().insert(get_key(), s);
 }
 pub fn get_log() -> String {
-    LOG.get_or_init(|| Default::default()).write().unwrap().remove(&get_key()).unwrap()
+    LOG.get_or_init(Default::default).write().unwrap().remove(&get_key()).unwrap()
 }
 
 // To keep the

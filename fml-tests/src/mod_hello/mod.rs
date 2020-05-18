@@ -17,6 +17,7 @@
 mod impls;
 
 use crate::services::*;
+use baselink::*;
 use fml::*;
 use impls::*;
 use std::collections::HashMap;
@@ -28,21 +29,31 @@ pub struct MyContext {
     factories: RwLock<HashMap<String, Arc<dyn HelloFactory>>>,
 }
 
-impl fml::Custom for MyContext {
-    fn new(context: &fml::Config) -> Self {
-        let number = serde_cbor::from_slice(&context.args).unwrap();
-        let mut factories = HashMap::new();
-        factories.insert(
-            context.id.clone(),
-            Arc::new(Factory {
-                handle: Default::default(),
-            }) as Arc<dyn HelloFactory>,
-        );
-        MyContext {
-            number,
-            factories: RwLock::new(factories),
-        }
-    }
+context_provider! {MyContext}
+pub fn get_context() -> &'static MyContext {
+    context_provider_mod::get()
+}
+pub fn set_context(ctx: MyContext) {
+    context_provider_mod::set(ctx)
+}
+pub fn remove_context() {
+    context_provider_mod::remove()
+}
+
+pub fn initializer() {
+    let config = get_module_config();
+    let number = serde_cbor::from_slice(&config.args).unwrap();
+    let mut factories = HashMap::new();
+    factories.insert(
+        config.id.clone(),
+        Arc::new(Factory {
+            handle: Default::default(),
+        }) as Arc<dyn HelloFactory>,
+    );
+    set_context(MyContext {
+        number,
+        factories: RwLock::new(factories),
+    });
 }
 
 pub struct Preset;
@@ -51,8 +62,8 @@ impl HandlePreset for Preset {
     fn export() -> Vec<HandleExchange> {
         let ctx = get_context();
         let mut result = Vec::new();
-        for i in 0..ctx.custom.number {
-            let exporter = ctx.config.id.clone();
+        for i in 0..ctx.number {
+            let exporter = get_module_config().id.clone();
             let importer = format!("Module{}", i);
             if exporter == importer {
                 continue
@@ -63,7 +74,7 @@ impl HandlePreset for Preset {
                 importer: importer.clone(),
                 handles: vec![service_export!(
                     HelloFactory,
-                    ctx.ports.read().unwrap().find(&importer).unwrap(),
+                    find_port_id(&importer).unwrap(),
                     Arc::new(Factory {
                         handle: Default::default(),
                     })
@@ -76,8 +87,8 @@ impl HandlePreset for Preset {
 
     fn import(mut exchange: HandleExchange) {
         let ctx = get_context();
-        assert_eq!(exchange.importer, ctx.config.id, "Invalid import request");
-        let mut guard = ctx.custom.factories.write().unwrap();
+        assert_eq!(exchange.importer, get_module_config().id, "Invalid import request");
+        let mut guard = ctx.factories.write().unwrap();
         assert_eq!(exchange.handles.len(), 1);
         let h = service_import!(HelloFactory, exchange.handles.pop().unwrap());
         guard.insert(exchange.exporter, h);
@@ -86,9 +97,9 @@ impl HandlePreset for Preset {
 
 pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
     let ctx = get_context();
-    let guard = ctx.custom.factories.read().unwrap();
+    let guard = ctx.factories.read().unwrap();
 
-    for n in 0..ctx.custom.number {
+    for n in 0..ctx.number {
         let factory = guard.get(&format!("Module{}", n)).unwrap();
         for i in 0..10 {
             let robot = factory.create(&format!("Robot{}", i)).unwrap();
@@ -98,4 +109,20 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
     Vec::new()
 }
 
-fml_setup!(MyContext, Preset, Some(Box::new(initiate)));
+#[cfg(feature = "single_process")]
+pub fn main_like(args: Vec<String>) {
+    run_control_loop::<cbsb::ipc::intra::Intra, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
+    // be careful of the following order!
+    fml::global::get().write().unwrap().no_drop = true;
+    remove_context();
+    fml::global::remove();
+}
+
+#[cfg(not(feature = "single_process"))]
+pub fn main_like(args: Vec<String>) {
+    run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
+    // be careful of the following order!
+    fml::global::get().write().unwrap().no_drop = true;
+    remove_context();
+    fml::global::remove();
+}

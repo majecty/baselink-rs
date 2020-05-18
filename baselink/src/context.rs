@@ -14,24 +14,30 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-extern crate codechain_basesandbox as cbsb;
+use fml::context_provider;
+use serde::{Deserialize, Serialize};
 
-mod context;
-mod handle;
-pub mod impl_prelude;
-mod port;
-pub mod queue;
-pub mod service_prelude;
-pub mod statistics;
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Config {
+    /// kind of this module. Per-binary
+    pub kind: String,
+    /// id of this instance of module. Per-instance, Per-appdescriptor
+    pub id: String,
+    /// key of this instance of module. Per-instance, Per-execution, Per-node
+    pub key: fml::InstanceKey,
+    /// Arguments given to this module.
+    pub args: Vec<u8>,
+}
 
-pub use context::{
-    single_process_support::get_key, single_process_support::set_key, FmlConfig,
-    InstanceKey, PortTable, global
-};
-pub use handle::id::{IdMap, setup_identifiers};
-pub use handle::SArc;
-pub use handle::{
-    dispatch::ServiceDispatcher, dispatch::PortDispatcher,HandleInstance, MethodId, Service, ServiceObjectId,
-    TraitId,
-};
-pub use port::{PacketHeader, PortId, Port};
+context_provider!{Config}
+pub fn get_module_config() -> &'static Config {
+    context_provider_mod::get()
+}
+
+pub(crate) fn set_module_config(ctx: Config) {
+    context_provider_mod::set(ctx)
+}
+
+pub(crate) fn remove_module_config() {
+    context_provider_mod::remove()
+}

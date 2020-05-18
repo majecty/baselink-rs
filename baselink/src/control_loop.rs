@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use crate::context::{global, single_process_support, Config, Context, Custom, FmlConfig, PortTable};
-use crate::handle::{HandlePreset, PortDispatcher};
-use crate::port::{Port, PortId};
+use fml::*;
 use cbsb::execution::executee;
 use cbsb::ipc::{intra, DefaultIpc, Ipc};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
+use crate::context::*;
+use crate::bootstrap::*;
 
 pub fn recv<I: Ipc, T: serde::de::DeserializeOwned>(ctx: &executee::Context<I>) -> T {
     serde_cbor::from_slice(&ctx.ipc.as_ref().unwrap().recv(None).unwrap()).unwrap()
@@ -35,7 +35,7 @@ fn create_port(
     ipc_type: Vec<u8>,
     ipc_config: Vec<u8>,
     dispatcher: Arc<PortDispatcher>,
-    instance_key: single_process_support::InstanceKey,
+    instance_key: InstanceKey,
     config_fml: &FmlConfig,
 ) -> Port {
     let ipc_type: String = serde_cbor::from_slice(&ipc_type).unwrap();
@@ -53,42 +53,44 @@ fn create_port(
     }
 }
 
-type DebugFunction = Box<dyn Fn(Vec<u8>) -> Vec<u8>>;
-
-pub fn run_control_loop<I: Ipc, C: Custom, H: HandlePreset>(
+pub type DebugFunction = Box<dyn Fn(Vec<u8>) -> Vec<u8>>;
+/// initializer will be called after the module configuration is setup.
+/// Please initialize your own custom context using it.
+pub fn run_control_loop<I: Ipc, H: HandlePreset>(
     args: Vec<String>,
-    context_setter: Box<dyn Fn(Context<C>) -> ()>,
+    initializer: Box<dyn Fn() -> ()>,
     debug: Option<DebugFunction>,
 ) {
     let ctx = executee::start::<I>(args);
 
-    let handle_descriptor: crate::handle::id::IdMap = recv(&ctx);
+    let id_map: IdMap = recv(&ctx);
     let config: Config = recv(&ctx);
     let config_fml: FmlConfig = recv(&ctx);
     let _id = config.id.clone();
-    let instance_key: single_process_support::InstanceKey = config.key;
+    let instance_key: InstanceKey = config.key;
     // set instance key also of this main thread.
-    single_process_support::set_key(instance_key);
-    super::handle::id::setup_identifiers(instance_key, &handle_descriptor);
-    let custom = C::new(&config);
-    let ports: Arc<RwLock<PortTable>> = Arc::new(RwLock::new(PortTable {
+    set_key(instance_key);
+    setup_identifiers(instance_key, &id_map);
+    let ports = RwLock::new(PortTable {
+        config_fml: config_fml.clone(),
         map: HashMap::new(),
         no_drop: false,
-    }));
-    let global_context = Context::new(ports.clone(), config, config_fml.clone(), custom);
-    global::set(global_context.ports.clone());
-    context_setter(global_context);
+    });
+    global::set(ports);
+    crate::context::set_module_config(config);
+    initializer();
+    
     loop {
         let message: String = recv(&ctx);
         if message == "link" {
-            let (port_id, counter_port_id, port_config, ipc_type, ipc_config) = recv(&ctx);
+            let (port_id, counter_port_id, counter_module_id, ipc_type, ipc_config) = recv(&ctx);
             let dispather = Arc::new(PortDispatcher::new(port_id, 128));
-            let mut port_table = ports.write().unwrap();
+            let mut port_table = global::get().write().unwrap();
 
             let old = port_table.map.insert(
                 port_id,
                 (
-                    port_config,
+                    counter_module_id,
                     counter_port_id,
                     create_port(port_id, ipc_type, ipc_config, dispather, instance_key, &config_fml),
                 ),
@@ -97,7 +99,7 @@ pub fn run_control_loop<I: Ipc, C: Custom, H: HandlePreset>(
             assert!(old.is_none(), "You must unlink first to link an existing port");
         } else if message == "unlink" {
             let (port_id,) = recv(&ctx);
-            let mut port_table = ports.write().unwrap();
+            let mut port_table = global::get().write().unwrap();
             port_table.map.remove(&port_id).unwrap();
         } else if message == "terminate" {
             break
@@ -120,5 +122,11 @@ pub fn run_control_loop<I: Ipc, C: Custom, H: HandlePreset>(
         }
         send(&ctx, &"done".to_owned());
     }
+    crate::context::remove_module_config();
     ctx.terminate();
+}
+
+pub fn shutdown() {
+    fml::global::get().write().unwrap().no_drop = true;
+    fml::global::remove();
 }

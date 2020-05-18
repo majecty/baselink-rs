@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::{MethodId, TraitId};
-use crate::context::{InstanceKey, INSTANCE_KEY_MAX};
+use crate::context::{InstanceKey};
 use linkme::distributed_slice;
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
@@ -63,6 +63,7 @@ pub struct IdMap {
     pub method_map: HashMap<(String, String), MethodId>,
 }
 
+const INSTANCE_KEY_MAX: usize = 10000;
 static ONCE_CHECK: OnceCell<Mutex<[bool; INSTANCE_KEY_MAX]>> = OnceCell::new();
 /// This must be called only once during the entire lifetime of module instance.
 /// If you build multiple instances into a single binary, it is ok to call multiple

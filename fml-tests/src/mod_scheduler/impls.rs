@@ -25,17 +25,17 @@ pub struct MySchedule {
 
 impl Schedule for MySchedule {
     fn get(&self) -> AvailiableMap {
-        let mut avail = get_context().custom.lock.lock().unwrap();
+        let mut avail = get_context().lock.lock().unwrap();
         while !*avail {
-            avail = get_context().custom.cvar.wait(avail).unwrap()
+            avail = get_context().cvar.wait(avail).unwrap()
         }
         *avail = false;
-        get_context().custom.map.lock().unwrap().clone()
+        get_context().map.lock().unwrap().clone()
     }
 
     fn set(&self, s: AvailiableMap) {
-        *get_context().custom.map.lock().unwrap() = s;
-        *get_context().custom.lock.lock().unwrap() = true;
-        get_context().custom.cvar.notify_one();
+        *get_context().map.lock().unwrap() = s;
+        *get_context().lock.lock().unwrap() = true;
+        get_context().cvar.notify_one();
     }
 }

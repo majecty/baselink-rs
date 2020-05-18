@@ -5,12 +5,13 @@ authors = ["CodeChain Team <hi@codechain.io>"]
 edition = "2018"
 
 [features]
-default = ["codechain-fml/default"]
-single_process = ["codechain-fml/single_process"]
+default = ["codechain-fml/default", "baselink/default"]
+single_process = ["codechain-fml/single_process", "baselink/single_process"]
 
 [dependencies]
 codechain-basesandbox = { path = "/home/junha/Projects/foundry-reference/basesandbox" }
 codechain-fml = { path = "../fml"}
+baselink = {path = "../baselink"}
 fml-macro = { path = "../fml/macro" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

@@ -17,9 +17,11 @@
 mod impls;
 
 use crate::services::*;
+use baselink::*;
 use fml::*;
 use impls::*;
 use std::sync::Arc;
+use std::sync::RwLock;
 use std::sync::{Condvar, Mutex};
 
 pub struct MyContext {
@@ -29,17 +31,27 @@ pub struct MyContext {
     cvar: Condvar,
 }
 
-impl fml::Custom for MyContext {
-    fn new(context: &fml::Config) -> Self {
-        let (number, threads): (usize, usize) = serde_cbor::from_slice(&context.args).unwrap();
-        let map = new_avail_map(number, threads);
-        MyContext {
-            number,
-            map: Mutex::new(map),
-            lock: Mutex::new(true),
-            cvar: Condvar::new(),
-        }
-    }
+context_provider! {MyContext}
+pub fn get_context() -> &'static MyContext {
+    context_provider_mod::get()
+}
+pub fn set_context(ctx: MyContext) {
+    context_provider_mod::set(ctx)
+}
+pub fn remove_context() {
+    context_provider_mod::remove()
+}
+
+pub fn initializer() {
+    let config = baselink::get_module_config();
+    let (number, threads): (usize, usize) = serde_cbor::from_slice(&config.args).unwrap();
+    let map = new_avail_map(number, threads);
+    set_context(MyContext {
+        number,
+        map: Mutex::new(map),
+        lock: Mutex::new(true),
+        cvar: Condvar::new(),
+    });
 }
 
 pub struct Preset;
@@ -48,7 +60,7 @@ impl HandlePreset for Preset {
     fn export() -> Vec<HandleExchange> {
         let ctx = get_context();
         let mut result = Vec::new();
-        for i in 0..ctx.custom.number {
+        for i in 0..ctx.number {
             let importer = format!("Module{}", i);
 
             result.push(HandleExchange {
@@ -56,7 +68,7 @@ impl HandlePreset for Preset {
                 importer: importer.clone(),
                 handles: vec![service_export!(
                     Schedule,
-                    ctx.ports.read().unwrap().find(&importer).unwrap(),
+                    find_port_id(&importer).unwrap(),
                     Arc::new(MySchedule {
                         handle: Default::default(),
                     })
@@ -72,4 +84,20 @@ impl HandlePreset for Preset {
     }
 }
 
-fml_setup!(MyContext, Preset, None);
+#[cfg(feature = "single_process")]
+pub fn main_like(args: Vec<String>) {
+    run_control_loop::<cbsb::ipc::intra::Intra, Preset>(args, Box::new(initializer), None);
+    // be careful of the following order!
+    fml::global::get().write().unwrap().no_drop = true;
+    remove_context();
+    fml::global::remove();
+}
+
+#[cfg(not(feature = "single_process"))]
+pub fn main_like(args: Vec<String>) {
+    run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), None);
+    // be careful of the following order!
+    fml::global::get().write().unwrap().no_drop = true;
+    remove_context();
+    fml::global::remove();
+}

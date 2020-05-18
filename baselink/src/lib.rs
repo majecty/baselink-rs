@@ -15,23 +15,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 extern crate codechain_basesandbox as cbsb;
+extern crate codechain_fml as fml;
 
+mod control_loop;
 mod context;
-mod handle;
-pub mod impl_prelude;
-mod port;
-pub mod queue;
-pub mod service_prelude;
-pub mod statistics;
+mod bootstrap;
 
-pub use context::{
-    single_process_support::get_key, single_process_support::set_key, FmlConfig,
-    InstanceKey, PortTable, global
-};
-pub use handle::id::{IdMap, setup_identifiers};
-pub use handle::SArc;
-pub use handle::{
-    dispatch::ServiceDispatcher, dispatch::PortDispatcher,HandleInstance, MethodId, Service, ServiceObjectId,
-    TraitId,
-};
-pub use port::{PacketHeader, PortId, Port};
+pub use context::{Config, get_module_config};
+pub use control_loop::{run_control_loop, shutdown};
+pub use bootstrap::{HandleExchange, HandlePreset, find_port_id};

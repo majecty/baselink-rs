@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+use baselink::*;
 use cbsb::execution::executor::{self, Executor};
 use cbsb::ipc::generate_random_name;
 use cbsb::ipc::Ipc;
@@ -25,7 +26,7 @@ pub const SERVER_THREADS: usize = 16;
 
 pub struct FmlModule<I: Ipc, E: Executor> {
     ctx: Option<executor::Context<I, E>>,
-    config: Config,
+    config: baselink::Config,
 }
 
 impl<I: Ipc, E: Executor> FmlModule<I, E> {
@@ -34,7 +35,7 @@ impl<I: Ipc, E: Executor> FmlModule<I, E> {
             trait_map,
             method_map: HashMap::new(),
         };
-        let config = Config {
+        let config = baselink::Config {
             kind: generate_random_name(),
             id,
             key: super::key::create_instance(),
@@ -139,7 +140,7 @@ pub fn link_all<I: Ipc + LinkMessage, E: Executor>(modules: &Modules<I, E>) {
             module1.send(&(
                 *port1,
                 *port2,
-                module2.config.clone(),
+                module2.config.id.clone(),
                 serde_cbor::to_vec(&link_message).unwrap(),
                 ipc_config1,
             ));
@@ -148,7 +149,7 @@ pub fn link_all<I: Ipc + LinkMessage, E: Executor>(modules: &Modules<I, E>) {
             module2.send(&(
                 *port2,
                 *port1,
-                module1.config.clone(),
+                module1.config.id.clone(),
                 serde_cbor::to_vec(&link_message).unwrap(),
                 ipc_config2,
             ));

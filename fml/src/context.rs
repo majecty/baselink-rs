@@ -13,25 +13,14 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#[macro_use]
+mod provider;
 
 use crate::port::Port;
 use crate::port::PortId;
-use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Config {
-    /// kind of this module. Per-binary
-    pub kind: String,
-    /// id of this instance of module. Per-instance, Per-appdescriptor
-    pub id: String,
-    /// key of this instance of module. Per-instance, Per-execution, Per-node
-    pub key: single_process_support::InstanceKey,
-    /// Arguments given to this module.
-    pub args: Vec<u8>,
-}
+use std::sync::{RwLock};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FmlConfig {
@@ -41,54 +30,27 @@ pub struct FmlConfig {
     pub call_slots: usize,
 }
 
-/// You can add additional variables as you want.
-pub trait Custom {
-    fn new(context: &Config) -> Self;
-}
-
-/// Though it uses HashMap now, we can issue PortIds in a series from 0 to ...
-/// Thus it may be optimized out to use plain array later.
+/// The entire global context that is enough to make services function.
 pub struct PortTable {
-    /// (Counterparty module's config, Counterarty's port id, Actual port)
-    pub map: HashMap<PortId, (Config, PortId, Port)>,
+    pub config_fml: FmlConfig,
+    /// (Counterparty module's name, Counterarty's port id, Actual port)
+    /// TODO: Though it uses HashMap now, we can issue PortIds in a series from 0 to ...
+    /// Thus it may be optimized to use plain array later.
+    pub map: HashMap<PortId, (String, PortId, Port)>,
     /// If this is true, the host is trying to shutdown all the modules
     /// You won't request deletion of handle because it doesn't matter.
     pub no_drop: bool,
 }
 
+/*
 impl PortTable {
-    // TODO: Remove this in favor of the LinkBootstrapping
+    /// TODO: Remove this in favor of the LinkBootstrapping
     /// Find first occurence of given moudle Id and return corresponding PortId
     pub fn find(&self, id: &str) -> Result<PortId, ()> {
         Ok(*self.map.iter().find(|&(_, (config, ..))| config.id == id).ok_or(())?.0)
     }
 }
-
-/// A global context that will be accessible from this module
-pub struct Context<T: Custom> {
-    /// Module author should not care about this.
-    pub ports: Arc<RwLock<PortTable>>,
-
-    /// Meta, pre-decided constant variables
-    pub config: Config,
-
-    /// FML configurations
-    pub config_fml: FmlConfig,
-
-    /// Custom variables
-    pub custom: T,
-}
-
-impl<T: Custom> Context<T> {
-    pub fn new(ports: Arc<RwLock<PortTable>>, config: Config, config_fml: FmlConfig, custom: T) -> Self {
-        Context {
-            ports,
-            config,
-            config_fml,
-            custom,
-        }
-    }
-}
+*/
 
 /// This manages thread-local keys for module instance discrimination
 /// in the intra-process setup.
@@ -104,70 +66,35 @@ pub mod single_process_support {
 
     pub fn set_key(key: InstanceKey) {
         INSTANCE_KEY.with(|k| {
-            assert_eq!(k.get(), 0);
+            assert_eq!(k.get(), 0, "You must set the instance key on your thread");
             k.set(key);
         })
     }
 
     pub fn get_key() -> InstanceKey {
         INSTANCE_KEY.with(|k| {
-            assert_ne!(k.get(), 0);
+            assert_ne!(k.get(), 0, "You must set the instance key on your thread");
             k.get()
         })
     }
 }
 pub use single_process_support::InstanceKey;
-pub const INSTANCE_KEY_MAX: usize = 10000;
 
-// These modules 'global' are accessed from call/dispatch.
-// User code won't ever be aware of this.
-
-#[cfg(feature = "single_process")]
 pub mod global {
     use super::*;
+    use single_process_support as codechain_fml;
 
-    static POOL: OnceCell<RwLock<HashMap<InstanceKey, Arc<RwLock<PortTable>>>>> = OnceCell::new();
-
-    fn get_pool_raw() -> &'static RwLock<HashMap<InstanceKey, Arc<RwLock<PortTable>>>> {
-        POOL.get_or_init(|| RwLock::new(HashMap::new()))
+    context_provider!{RwLock<PortTable>}
+    pub fn get() -> &'static Context {
+        context_provider_mod::get()
     }
 
-    pub fn get() -> Arc<RwLock<PortTable>> {
-        get_pool_raw()
-            .read()
-            .unwrap()
-            .get(&single_process_support::get_key())
-            .expect("Global context is not set.")
-            .clone()
-    }
-
-    pub fn set(port_table: Arc<RwLock<PortTable>>) {
-        assert!(
-            get_pool_raw().write().unwrap().insert(single_process_support::get_key(), port_table).is_none(),
-            "Global context has been already set"
-        );
+    pub fn set(ctx: Context) {
+        context_provider_mod::set(ctx)
     }
 
     pub fn remove() {
-        get_pool_raw().write().unwrap().remove(&single_process_support::get_key()).unwrap();
+        context_provider_mod::remove()
     }
 }
 
-#[cfg(not(feature = "single_process"))]
-pub mod global {
-    use super::*;
-
-    static POOL: OnceCell<Option<Arc<RwLock<PortTable>>>> = OnceCell::new();
-
-    pub fn get() -> Arc<RwLock<PortTable>> {
-        POOL.get_or_init(|| None).as_ref().expect("Global context is not set.").clone()
-    }
-
-    pub fn set(port_table: Arc<RwLock<PortTable>>) {
-        POOL.set(Some(port_table)).map_err(|_| "Global context has been already set").unwrap()
-    }
-
-    pub fn remove() {
-        // we're shutting the entire program. No need of a manual drop!
-    }
-}
