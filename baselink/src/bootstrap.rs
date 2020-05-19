@@ -49,8 +49,7 @@ impl ExportingServicePool {
 
     pub fn export(&mut self, port_id: PortId, index: usize) -> Vec<u8> {
         let service = self.pool[index].take().unwrap();
-        let fixme = 123; //TODO
-        let handle = fml::service_prelude::service_env::service_context::register(port_id, fixme, service);
+        let handle = fml::service_prelude::service_env::service_context::register(port_id, service);
         serde_cbor::to_vec(&handle).unwrap()
     }
 }

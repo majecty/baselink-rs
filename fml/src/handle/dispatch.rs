@@ -65,7 +65,7 @@ impl PortDispatcher {
     }
 }
 
-pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Arc<dyn Service>) -> HandleInstance {
+pub fn register(port_id: PortId, mut handle_to_register: Arc<dyn Service>) -> HandleInstance {
     #[cfg(fml_statistics)]
     {
         crate::statistics::CREATE_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -74,7 +74,6 @@ pub fn register(port_id: PortId, trait_id: TraitId, mut handle_to_register: Arc<
     let port_table = context.read();
 
     Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_exporter = port_id;
-    Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().id.trait_id = trait_id;
     Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_importer =
         port_table.map.get(&port_id).unwrap().1;
 

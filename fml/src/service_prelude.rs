@@ -21,7 +21,7 @@ pub mod service_env {
     pub use crate::handle::dispatch::ServiceDispatcher;
     pub use crate::handle::id::{MID_REG, TID_REG};
     pub use crate::handle::service_context;
-    pub use crate::handle::{DispatchService, ExportService, ImportService, SArc};
+    pub use crate::handle::{DispatchService, ExportService, ImportService, IdOfService, SArc};
     pub use crate::handle::{HandleInstance, MethodId, MethodIdAtomic, Service, TraitId, TraitIdAtomic, ID_ORDERING};
     pub use crate::port::{PacketHeader, Port, PortId};
 }
@@ -31,7 +31,7 @@ pub mod service_env_mock {
     pub use crate::context::global;
     pub use crate::handle::dispatch::ServiceDispatcher;
     pub use crate::handle::id::{MID_REG, TID_REG};
-    pub use crate::handle::{DispatchService, ExportService, ImportService, SArc};
+    pub use crate::handle::{DispatchService, ExportService, ImportService, IdOfService,SArc};
     pub use crate::handle::{HandleInstance, MethodId, MethodIdAtomic, Service, TraitId, TraitIdAtomic, ID_ORDERING};
     pub use crate::port::{PacketHeader, Port, PortId};
 }

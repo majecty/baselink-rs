@@ -41,8 +41,6 @@ pub const UNDECIDED_PORT: PortId = std::u16::MAX;
 /// This struct represents an index to a service object in port server's registry
 #[derive(PartialEq, Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct ServiceObjectId {
-    /// This is for debug. It is not used in call / dispatch.
-    pub(crate) trait_id: TraitId,
     pub(crate) index: InstanceId,
 }
 
@@ -64,7 +62,6 @@ impl Default for HandleInstance {
     fn default() -> Self {
         HandleInstance {
             id: ServiceObjectId {
-                trait_id: UNDECIDED_TRAIT,
                 index: UNDECIDED_INDEX,
             },
             port_id_exporter: UNDECIDED_PORT,
@@ -93,6 +90,7 @@ impl HandleInstance {
 pub trait Service: dispatch::ServiceDispatcher + std::fmt::Debug + intertrait::CastFromSync + Send + Sync {
     fn get_handle(&self) -> &HandleInstance;
     fn get_handle_mut(&mut self) -> &mut HandleInstance;
+    fn get_trait_id(&self) -> TraitId;
 }
 
 pub struct SArc<T: ?Sized + Service> {
@@ -111,7 +109,7 @@ impl<T: ?Sized + Service> SArc<T> {
     }
 }
 
-// These three traits are very special: they are associated with a specific trait.
+// These four traits are very special: they are associated with a specific trait.
 // However use (module author) will never use these, but the generated code will.
 pub trait ImportService<T: ?Sized + Service> {
     fn import(handle: HandleInstance) -> Arc<T>;
@@ -123,6 +121,10 @@ pub trait ExportService<T: ?Sized + Service> {
 
 pub trait DispatchService<T: ?Sized + Service> {
     fn dispatch(object: &T, method: MethodId, arguments: &[u8], return_buffer: std::io::Cursor<&mut Vec<u8>>);
+}
+
+pub trait IdOfService<T: ?Sized + Service> {
+    fn id() -> TraitId;
 }
 
 #[macro_export]

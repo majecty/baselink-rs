@@ -68,7 +68,6 @@ fn encoding_packet_header() {
     let ph1 = PacketHeader {
         slot: 0x1234,
         handle: ServiceObjectId {
-            trait_id: 0x9999,
             index: 0x8888,
         },
         method: 0x5678,

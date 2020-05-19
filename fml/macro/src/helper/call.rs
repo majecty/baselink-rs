@@ -83,6 +83,7 @@ pub fn generate_imported_struct(
         the_method.block.stmts.push(syn::Stmt::Expr(syn::Expr::Verbatim(the_call)));
         imported_struct_impl.items.push(syn::ImplItem::Method(the_method));
     }
+    let trait_id_ident = super::id::id_trait_ident(&the_trait);
     imported_struct.extend(imported_struct_impl.to_token_stream());
     imported_struct.extend(quote! {
         impl #fml_path::Service for #struct_ident {
@@ -91,6 +92,9 @@ pub fn generate_imported_struct(
             }
             fn get_handle_mut(&mut self) -> &mut #fml_path::HandleInstance {
                 &mut self.handle
+            }
+            fn get_trait_id(&self) -> #fml_path::TraitId {
+                #trait_id_ident.load(#fml_path::ID_ORDERING)
             }
         }
         impl Drop for #struct_ident {

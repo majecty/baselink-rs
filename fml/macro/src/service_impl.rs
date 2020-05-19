@@ -58,6 +58,9 @@ fn helper(
             fn get_handle_mut(&mut self) -> &mut #fml_path::HandleInstance {
                 &mut self.handle
             }
+            fn get_trait_id(&self) -> #fml_path::TraitId {
+                <dyn #service_trait as #fml_path::IdOfService<dyn #service_trait>>::id()
+            }
         }
     })
 }

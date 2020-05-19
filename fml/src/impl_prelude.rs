@@ -19,7 +19,7 @@
 pub mod impl_env {
     pub use crate::handle::dispatch::ServiceDispatcher;
     pub use crate::handle::Service;
-    pub use crate::handle::{DispatchService, HandleInstance, MethodId};
+    pub use crate::handle::{DispatchService, IdOfService, TraitId, HandleInstance, MethodId};
     pub use std::sync::Arc;
 }
 
