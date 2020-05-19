@@ -17,7 +17,7 @@
 extern crate codechain_basesandbox as cbsb;
 
 mod context;
-mod handle;
+mod service;
 pub mod impl_prelude;
 mod port;
 pub mod queue;
@@ -27,9 +27,9 @@ pub mod statistics;
 pub use context::{
     global, termination, single_process_support::get_key, single_process_support::set_key, FmlConfig, InstanceKey, PortTable,
 };
-pub use handle::id::{setup_identifiers, IdMap};
-pub use handle::SArc;
-pub use handle::{
+pub use service::id::{setup_identifiers, IdMap};
+pub use service::SArc;
+pub use service::{
     dispatch::PortDispatcher, dispatch::ServiceDispatcher, HandleInstance, MethodId, Service, ServiceObjectId, TraitId,
 };
 pub use port::{PacketHeader, Port, PortId};

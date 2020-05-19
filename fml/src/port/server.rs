@@ -18,7 +18,7 @@ use super::PacketHeader;
 use super::PortId;
 use super::{DELETE_INDICATOR, SLOT_CALL_OR_RETURN_INDICATOR};
 use crate::context::single_process_support;
-use crate::handle::{dispatch::delete, PortDispatcher};
+use crate::service::{dispatch::delete, PortDispatcher, UNDECIDED_PORT};
 use crate::queue::Queue;
 use crossbeam::channel::{bounded, Receiver, Sender};
 use std::io::Cursor;
@@ -29,19 +29,20 @@ use std::thread;
 /// SArc. Note that this is required even in the inter-process setup.
 /// TODO: check that serde doens't spawn a thread while serializing.
 pub mod port_thread_local {
+    use super::*;
     use std::cell::Cell;
-    thread_local!(static INSTANCE_KEY: Cell<crate::port::PortId> = Cell::new(crate::handle::UNDECIDED_PORT));
+    thread_local!(static INSTANCE_KEY: Cell<crate::port::PortId> = Cell::new(UNDECIDED_PORT));
 
     pub fn set_key(key: crate::port::PortId) {
         INSTANCE_KEY.with(|k| {
-            assert_eq!(k.get(), crate::handle::UNDECIDED_PORT);
+            assert_eq!(k.get(), UNDECIDED_PORT);
             k.set(key);
         })
     }
 
     pub fn get_key() -> crate::port::PortId {
         INSTANCE_KEY.with(|k| {
-            assert_ne!(k.get(), crate::handle::UNDECIDED_PORT);
+            assert_ne!(k.get(), UNDECIDED_PORT);
             k.get()
         })
     }

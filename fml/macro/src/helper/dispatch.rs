@@ -143,14 +143,12 @@ pub fn generate_dispatch(
                 #fml_path::service_context::register(port_id, handle.cast::<dyn #fml_path::Service>().expect("Trait casting failed"))
             }
         }
-
         impl #fml_path::DispatchService<dyn #trait_ident> for dyn #trait_ident {
             fn dispatch(object: &dyn #trait_ident, method: #fml_path::MethodId, arguments: &[u8],
             return_buffer: std::io::Cursor<&mut Vec<u8>>) {
                 #if_else_clauses
             }
         }
-
         impl #fml_path::IdOfService<dyn #trait_ident> for dyn #trait_ident {
             fn id() -> #fml_path::TraitId{
                 #trait_id_ident.load(#fml_path::ID_ORDERING)

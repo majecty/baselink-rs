@@ -32,8 +32,3 @@ pub fn path_of_single_ident(ident: syn::Ident) -> syn::Path {
         },
     }
 }
-
-pub fn ident_of_last_path_segment(path: &syn::Path) -> syn::Ident {
-    let segment = path.segments.last().unwrap();
-    segment.ident.clone()
-}

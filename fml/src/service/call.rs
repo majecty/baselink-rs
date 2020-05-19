@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use crate::context;
-use crate::handle::{HandleInstance, MethodId};
+use crate::service::{HandleInstance, MethodId};
 use crate::PacketHeader;
 use std::io::Cursor;
 

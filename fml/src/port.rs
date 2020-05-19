@@ -18,7 +18,7 @@ pub mod client;
 pub mod server;
 
 use crate::context::{single_process_support::InstanceKey, FmlConfig};
-use crate::handle::{MethodId, PortDispatcher, ServiceObjectId};
+use crate::service::{MethodId, PortDispatcher, ServiceObjectId};
 use cbsb::ipc::{multiplex, IpcRecv, IpcSend};
 use std::sync::Arc;
 
@@ -44,6 +44,7 @@ const DELETE_INDICATOR: MethodId = 1234;
 const MULTIPLEX_INDEX_SERVER: usize = 0;
 const MULTIPLEX_INDEX_CLIENT: usize = 1;
 
+#[repr(C)]
 #[derive(PartialEq, Debug)]
 pub struct PacketHeader {
     pub slot: SlotId,

@@ -17,11 +17,11 @@
 // This module provides required components in FML while expanding FML macro.
 
 pub mod impl_env {
-    pub use crate::handle::dispatch::ServiceDispatcher;
-    pub use crate::handle::Service;
-    pub use crate::handle::{DispatchService, IdOfService, TraitId, HandleInstance, MethodId};
+    pub use crate::service::dispatch::ServiceDispatcher;
+    pub use crate::service::Service;
+    pub use crate::service::{DispatchService, IdOfService, TraitId, HandleInstance, MethodId};
     pub use std::sync::Arc;
 }
 
-pub use crate::handle::HandleInstance;
-pub use crate::handle::SArc;
+pub use crate::service::HandleInstance;
+pub use crate::service::SArc;

@@ -104,7 +104,11 @@ impl<T: ?Sized + Service> SArc<T> {
         }
     }
 
-    pub fn unwrap(&self) -> Arc<T> {
+    pub(crate)fn take(&self) -> Arc<T> {
+        self.value.take().unwrap()
+    }
+
+    pub fn unwrap(self) -> Arc<T> {
         self.value.take().unwrap()
     }
 }
@@ -166,6 +170,5 @@ macro_rules! service_id {
 pub mod service_context {
     pub use super::call::call;
     pub use super::call::delete as delete_remote;
-    pub use super::dispatch::delete;
     pub use super::dispatch::register;
 }

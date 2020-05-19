@@ -16,7 +16,7 @@
 
 use super::table::ServiceObjectTable;
 use super::PortId;
-use super::{HandleInstance, MethodId, Service, ServiceObjectId, TraitId};
+use super::{HandleInstance, MethodId, Service, ServiceObjectId};
 use crate::context;
 use parking_lot::RwLock;
 use std::sync::Arc;

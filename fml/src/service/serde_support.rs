@@ -24,7 +24,7 @@ impl<T: ?Sized + Service + ExportService<T>> Serialize for SArc<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer, {
-        let service = self.unwrap();
+        let service = self.take();
         let handle = T::export(port_thread_local::get_key(), service);
         handle.serialize(serializer)
     }
