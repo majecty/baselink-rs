@@ -1,4 +1,4 @@
-use fml::{HandleInstance, Service};
+use fml::*;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -30,10 +30,27 @@ pub fn find_port_id(id: &str) -> Result<fml::PortId, ()> {
     Ok(*table.map.iter().find(|&(_, (name, ..))| name == id).ok_or(())?.0)
 }
 
-pub fn create_service_to_export(method_name: String, argument: Vec<u8>) -> Arc<dyn Service> {
+pub fn create_service_to_export(method_name: &str, argument: &[u8]) -> Arc<dyn Service> {
     panic!()
 }
 
 pub struct ExportingServicePool {
     pool: Vec<Option<Arc<dyn Service>>>
+}
+
+impl ExportingServicePool {
+    pub fn new(ctors: &[(&str, &[u8])]) -> Self {
+        let pool = ctors.iter().map(|(method, arg)| 
+        Some(create_service_to_export(method, arg))).collect();
+        ExportingServicePool {
+            pool
+        }
+    }
+
+    pub fn export(&mut self, port_id: PortId, index: usize) -> Vec<u8> {
+        let service = self.pool[index].take().unwrap();
+        let fixme = 123; //TODO
+        let handle = fml::service_prelude::service_env::service_context::register(port_id, fixme, service);
+        serde_cbor::to_vec(&handle).unwrap()
+    }
 }
