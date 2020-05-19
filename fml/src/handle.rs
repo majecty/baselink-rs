@@ -130,7 +130,7 @@ pub trait IdOfService<T: ?Sized + Service> {
 #[macro_export]
 macro_rules! service_export {
     ($service_trait: path, $port_id: expr, $arg: expr) => {
-        <dyn $service_trait as fml::service_prelude::service_env::ExportService<dyn $service_trait>>::export(
+        <dyn $service_trait as codechain_fml::service_prelude::service_env::ExportService<dyn $service_trait>>::export(
             $port_id, $arg,
         )
     };
@@ -139,19 +139,26 @@ macro_rules! service_export {
 #[macro_export]
 macro_rules! service_import {
     ($service_trait: path, $arg: expr) => {
-        <dyn $service_trait as fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import($arg)
+        <dyn $service_trait as codechain_fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import($arg)
     };
 }
 
 #[macro_export]
 macro_rules! service_dispatch {
     ($service_trait: path, $object: expr, $method: expr, $arguments: expr, $return_buffer: expr) => {
-        <dyn $service_trait as fml::service_prelude::service_env::DispatchService<dyn $service_trait>>::dispatch(
+        <dyn $service_trait as codechain_fml::service_prelude::service_env::DispatchService<dyn $service_trait>>::dispatch(
             $object,
             $method,
             $arguments,
             $return_buffer,
         )
+    };
+}
+
+#[macro_export]
+macro_rules! service_id {
+    ($service_trait: path) => {
+        <dyn $service_trait as codechain_fml::service_prelude::service_env::IdOfService<dyn $service_trait>>::id()
     };
 }
 
