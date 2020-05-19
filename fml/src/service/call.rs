@@ -50,7 +50,7 @@ pub fn call<S: serde::Serialize, D: serde::de::DeserializeOwned>(
 
 pub fn delete(handle: &HandleInstance) {
     if context::termination::get().load(std::sync::atomic::Ordering::Relaxed) {
-        return;
+        return
     }
     #[cfg(fml_statistics)]
     {

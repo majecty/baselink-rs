@@ -16,15 +16,15 @@
 
 // Mock functions for the dispatcher / method stubs
 
-extern crate codechain_fml as fml;
+use crate as fml;
 
 use fml::*;
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::cell::Cell;
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::collections::VecDeque;
+use std::sync::Arc;
 
 thread_local!(static INSTANCE_KEY: Cell<u32> = Cell::new(0));
 
@@ -44,7 +44,7 @@ fn get_key() -> u32 {
 
 type LogQueue = VecDeque<Vec<u8>>;
 static LOG: OnceCell<RwLock<HashMap<u32, LogQueue>>> = OnceCell::new();
-type ServiceLogQueue = VecDeque< Arc<dyn Service>>;
+type ServiceLogQueue = VecDeque<Arc<dyn Service>>;
 static SERVICE_LOG: OnceCell<RwLock<HashMap<u32, ServiceLogQueue>>> = OnceCell::new();
 
 fn push_log(s: Vec<u8>) {
@@ -53,6 +53,8 @@ fn push_log(s: Vec<u8>) {
         queue.push_back(s)
     } else {
         guard.insert(get_key(), VecDeque::new());
+        drop(guard);
+        push_log(s);
     }
 }
 pub fn pop_log() -> Vec<u8> {
@@ -65,6 +67,8 @@ fn push_service_log(s: Arc<dyn Service>) {
         queue.push_back(s)
     } else {
         guard.insert(get_key(), VecDeque::new());
+        drop(guard);
+        push_service_log(s);
     }
 }
 pub fn pop_service_log() -> Arc<dyn Service> {

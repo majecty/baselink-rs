@@ -16,8 +16,8 @@
 
 use super::PacketHeader;
 use super::{DELETE_INDICATOR, SLOT_CALL_OR_RETURN_INDICATOR};
-use crate::service::{MethodId, ServiceObjectId};
 use crate::queue::Queue;
+use crate::service::{MethodId, ServiceObjectId};
 use crossbeam::channel::{bounded, Receiver, Sender};
 use std::sync::Arc;
 use std::thread;

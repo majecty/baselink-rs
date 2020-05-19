@@ -54,8 +54,8 @@ macro_rules! context_provider {
             static mut CONTEXT: Option<Context> = None;
 
             pub fn get() -> &'static Context {
-                unsafe { 
-                    // We let the compiler optimize 
+                unsafe {
+                    // We let the compiler optimize
                     // not to cost overhead of checking Some() using unreachable_unchecked.
                     CONTEXT.as_ref().unwrap_or_else(|| std::hint::unreachable_unchecked())
                 }

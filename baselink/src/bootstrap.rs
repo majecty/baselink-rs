@@ -35,15 +35,14 @@ pub fn create_service_to_export(method_name: &str, argument: &[u8]) -> Arc<dyn S
 }
 
 pub struct ExportingServicePool {
-    pool: Vec<Option<Arc<dyn Service>>>
+    pool: Vec<Option<Arc<dyn Service>>>,
 }
 
 impl ExportingServicePool {
     pub fn new(ctors: &[(&str, &[u8])]) -> Self {
-        let pool = ctors.iter().map(|(method, arg)| 
-        Some(create_service_to_export(method, arg))).collect();
+        let pool = ctors.iter().map(|(method, arg)| Some(create_service_to_export(method, arg))).collect();
         ExportingServicePool {
-            pool
+            pool,
         }
     }
 

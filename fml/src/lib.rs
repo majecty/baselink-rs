@@ -17,19 +17,31 @@
 extern crate codechain_basesandbox as cbsb;
 
 mod context;
-mod service;
 pub mod impl_prelude;
 mod port;
 pub mod queue;
+mod service;
 pub mod service_prelude;
 pub mod statistics;
+#[cfg(test)]
+mod tests;
+#[cfg(test)]
+#[macro_use]
+extern crate fml_macro;
+#[cfg(test)]
+#[macro_use]
+extern crate linkme;
+#[cfg(test)]
+#[macro_use]
+extern crate intertrait;
 
 pub use context::{
-    global, termination, single_process_support::get_key, single_process_support::set_key, FmlConfig, InstanceKey, PortTable,
+    global, single_process_support::get_key, single_process_support::set_key, termination, FmlConfig, InstanceKey,
+    PortTable,
 };
+pub use port::{PacketHeader, Port, PortId};
 pub use service::id::{setup_identifiers, IdMap};
 pub use service::SArc;
 pub use service::{
     dispatch::PortDispatcher, dispatch::ServiceDispatcher, HandleInstance, MethodId, Service, ServiceObjectId, TraitId,
 };
-pub use port::{PacketHeader, Port, PortId};

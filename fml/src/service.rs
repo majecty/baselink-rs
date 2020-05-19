@@ -104,7 +104,7 @@ impl<T: ?Sized + Service> SArc<T> {
         }
     }
 
-    pub(crate)fn take(&self) -> Arc<T> {
+    pub(crate) fn take(&self) -> Arc<T> {
         self.value.take().unwrap()
     }
 
@@ -143,7 +143,9 @@ macro_rules! service_export {
 #[macro_export]
 macro_rules! service_import {
     ($service_trait: path, $arg: expr) => {
-        <dyn $service_trait as codechain_fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import($arg)
+        <dyn $service_trait as codechain_fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import(
+            $arg,
+        )
     };
 }
 
