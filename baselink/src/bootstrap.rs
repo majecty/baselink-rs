@@ -1,5 +1,6 @@
-use fml::HandleInstance;
+use fml::{HandleInstance, Service};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 /// TODO: Replace this with LinkBootstrapping.
 #[derive(PartialEq, Serialize, Deserialize, Debug)]
@@ -27,4 +28,12 @@ pub fn find_port_id(id: &str) -> Result<fml::PortId, ()> {
     let table = fml::global::get().read();
     let keys: Vec<String> = (*table).map.iter().map(|x| (x.1).0.clone()).collect();
     Ok(*table.map.iter().find(|&(_, (name, ..))| name == id).ok_or(())?.0)
+}
+
+pub fn create_service_to_export(method_name: String, argument: Vec<u8>) -> Arc<dyn Service> {
+    panic!()
+}
+
+pub struct ExportingServicePool {
+    pool: Vec<Option<Arc<dyn Service>>>
 }
