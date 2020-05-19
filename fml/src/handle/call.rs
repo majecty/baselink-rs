@@ -42,7 +42,7 @@ pub fn call<S: serde::Serialize, D: serde::de::DeserializeOwned>(
     .unwrap();
 
     let context = context::global::get();
-    let port_table = context.read().unwrap();
+    let port_table = context.read();
     let port = &port_table.map.get(&handle.port_id_importer).expect("PortTable corrupted").2;
     let result = port.call(handle.id, method, buffer);
     serde_cbor::from_reader(&result[std::mem::size_of::<PacketHeader>()..]).unwrap()
@@ -55,7 +55,7 @@ pub fn delete(handle: &HandleInstance) {
     }
 
     let context = context::global::get();
-    let port_table = context.read().unwrap();
+    let port_table = context.read();
     if port_table.no_drop {
         return
     }

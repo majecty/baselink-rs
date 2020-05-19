@@ -27,24 +27,24 @@ macro_rules! context_provider {
         pub mod context_provider_mod {
             use super::*;
             use once_cell::sync::OnceCell;
+            use parking_lot::RwLock;
             use std::collections::HashMap;
-            use std::sync::RwLock;
 
             // We need to enclose the context in the Box so that it won't move.
             static POOL: OnceCell<RwLock<HashMap<codechain_fml::InstanceKey, Box<Context>>>> = OnceCell::new();
             pub fn get() -> &'static Context {
-                let ptr: *const _ = &*POOL.get().unwrap().read().unwrap().get(&codechain_fml::get_key()).unwrap();
+                let ptr: *const _ = &*POOL.get().unwrap().read().get(&codechain_fml::get_key()).unwrap();
                 // TODO: Read the related section in Rustonomicon and make sure that this is safe.
                 unsafe { &*ptr }
             }
             pub fn set(ctx: Context) {
                 POOL.get_or_init(|| Default::default());
-                let mut pool = POOL.get().unwrap().write().unwrap();
+                let mut pool = POOL.get().unwrap().write();
                 assert!(!pool.contains_key(&codechain_fml::get_key()));
                 pool.insert(codechain_fml::get_key(), Box::new(ctx));
             }
             pub fn remove() {
-                POOL.get().unwrap().write().unwrap().remove(&codechain_fml::get_key()).unwrap();
+                POOL.get().unwrap().write().remove(&codechain_fml::get_key()).unwrap();
             }
         }
 
@@ -69,5 +69,5 @@ macro_rules! context_provider {
                 }
             }
         }
-    }
+    };
 }

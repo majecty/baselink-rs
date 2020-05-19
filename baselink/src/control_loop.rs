@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use fml::*;
+use crate::bootstrap::*;
+use crate::context::*;
 use cbsb::execution::executee;
 use cbsb::ipc::{intra, DefaultIpc, Ipc};
+use fml::*;
+use parking_lot::RwLock;
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
-use crate::context::*;
-use crate::bootstrap::*;
+use std::sync::Arc;
 
 pub fn recv<I: Ipc, T: serde::de::DeserializeOwned>(ctx: &executee::Context<I>) -> T {
     serde_cbor::from_slice(&ctx.ipc.as_ref().unwrap().recv(None).unwrap()).unwrap()
@@ -79,13 +80,13 @@ pub fn run_control_loop<I: Ipc, H: HandlePreset>(
     global::set(ports);
     crate::context::set_module_config(config);
     initializer();
-    
+
     loop {
         let message: String = recv(&ctx);
         if message == "link" {
             let (port_id, counter_port_id, counter_module_id, ipc_type, ipc_config) = recv(&ctx);
             let dispather = Arc::new(PortDispatcher::new(port_id, 128));
-            let mut port_table = global::get().write().unwrap();
+            let mut port_table = global::get().write();
 
             let old = port_table.map.insert(
                 port_id,
@@ -99,7 +100,7 @@ pub fn run_control_loop<I: Ipc, H: HandlePreset>(
             assert!(old.is_none(), "You must unlink first to link an existing port");
         } else if message == "unlink" {
             let (port_id,) = recv(&ctx);
-            let mut port_table = global::get().write().unwrap();
+            let mut port_table = global::get().write();
             port_table.map.remove(&port_id).unwrap();
         } else if message == "terminate" {
             break
@@ -127,6 +128,6 @@ pub fn run_control_loop<I: Ipc, H: HandlePreset>(
 }
 
 pub fn shutdown() {
-    fml::global::get().write().unwrap().no_drop = true;
+    fml::global::get().write().no_drop = true;
     fml::global::remove();
 }

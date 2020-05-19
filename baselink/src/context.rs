@@ -29,7 +29,7 @@ pub struct Config {
     pub args: Vec<u8>,
 }
 
-context_provider!{Config}
+context_provider! {Config}
 pub fn get_module_config() -> &'static Config {
     context_provider_mod::get()
 }

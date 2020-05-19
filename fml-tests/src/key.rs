@@ -21,8 +21,8 @@ use once_cell::sync::OnceCell;
 #[cfg(feature = "single_process")]
 mod m {
     use super::*;
+    use parking_lot::Mutex;
     use std::collections::VecDeque;
-    use std::sync::Mutex;
 
     static POOL: OnceCell<Mutex<VecDeque<InstanceKey>>> = OnceCell::new();
 
@@ -36,14 +36,13 @@ mod m {
                 Mutex::new(x)
             })
             .lock()
-            .unwrap()
             .pop_front()
             .unwrap();
         x
     }
 
     pub fn return_instance(key: InstanceKey) {
-        POOL.get().unwrap().lock().unwrap().push_back(key);
+        POOL.get().unwrap().lock().push_back(key);
     }
 }
 

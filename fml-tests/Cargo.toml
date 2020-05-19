@@ -21,6 +21,7 @@ intertrait = "0.2.0"
 linkme = "0.2.1"
 rand = "0.7.3"
 once_cell = "1.3.1"
+parking_lot = "0.10.2"
 
 [[bin]]
 path = "./bin/mod_hello.rs"

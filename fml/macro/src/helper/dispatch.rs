@@ -73,7 +73,7 @@ pub fn generate_dispatch(
                 subpat: None,
             }));
             the_let_pattern.elems.push_punct(syn::token::Comma(Span::call_site()));
-            
+
             let arg_type = match arg_source {
                 syn::FnArg::Typed(syn::PatType {
                     attrs: _,
@@ -83,17 +83,17 @@ pub fn generate_dispatch(
                 }) => &**t,
                 _ => panic!(),
             };
-            
+
             if let Some(unrefed_type) = super::types::is_ref(arg_type)
-            .map_err(|e| syn::Error::new_spanned(arg_source, &e).to_compile_error())? {
+                .map_err(|e| syn::Error::new_spanned(arg_source, &e).to_compile_error())?
+            {
                 type_annotation.elems.push(unrefed_type);
-            }
-            else {
+            } else {
                 type_annotation.elems.push(arg_type.clone());
             }
-            
+
             type_annotation.elems.push_punct(syn::token::Comma(Span::call_site()));
-       
+
             let arg_ident = quote::format_ident!("a{}", j + 1);
             let the_arg = if super::types::is_ref(arg_type)
                 .map_err(|e| syn::Error::new_spanned(arg_source, &e).to_compile_error())?
@@ -109,7 +109,6 @@ pub fn generate_dispatch(
             };
             the_args.push(syn::parse2(the_arg).unwrap());
         }
-        
 
         let stmt_deserialize = quote! {
             let #the_let_pattern: #type_annotation = serde_cbor::from_reader(&arguments[std::mem::size_of::<#fml_path::PacketHeader>()..]).unwrap();

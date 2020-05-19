@@ -20,9 +20,9 @@ use crate::services::*;
 use baselink::*;
 use fml::*;
 use impls::*;
+use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::RwLock;
 
 pub struct MyContext {
     number: usize,
@@ -88,7 +88,7 @@ impl HandlePreset for Preset {
     fn import(mut exchange: HandleExchange) {
         let ctx = get_context();
         assert_eq!(exchange.importer, get_module_config().id, "Invalid import request");
-        let mut guard = ctx.factories.write().unwrap();
+        let mut guard = ctx.factories.write();
         assert_eq!(exchange.handles.len(), 1);
         let h = service_import!(HelloFactory, exchange.handles.pop().unwrap());
         guard.insert(exchange.exporter, h);
@@ -97,7 +97,7 @@ impl HandlePreset for Preset {
 
 pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
     let ctx = get_context();
-    let guard = ctx.factories.read().unwrap();
+    let guard = ctx.factories.read();
 
     for n in 0..ctx.number {
         let factory = guard.get(&format!("Module{}", n)).unwrap();
@@ -113,7 +113,7 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::intra::Intra, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
     // be careful of the following order!
-    fml::global::get().write().unwrap().no_drop = true;
+    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }
@@ -122,7 +122,7 @@ pub fn main_like(args: Vec<String>) {
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
     // be careful of the following order!
-    fml::global::get().write().unwrap().no_drop = true;
+    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }

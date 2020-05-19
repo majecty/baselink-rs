@@ -25,13 +25,11 @@ pub mod service_prelude;
 pub mod statistics;
 
 pub use context::{
-    single_process_support::get_key, single_process_support::set_key, FmlConfig,
-    InstanceKey, PortTable, global
+    global, single_process_support::get_key, single_process_support::set_key, FmlConfig, InstanceKey, PortTable,
 };
-pub use handle::id::{IdMap, setup_identifiers};
+pub use handle::id::{setup_identifiers, IdMap};
 pub use handle::SArc;
 pub use handle::{
-    dispatch::ServiceDispatcher, dispatch::PortDispatcher,HandleInstance, MethodId, Service, ServiceObjectId,
-    TraitId,
+    dispatch::PortDispatcher, dispatch::ServiceDispatcher, HandleInstance, MethodId, Service, ServiceObjectId, TraitId,
 };
-pub use port::{PacketHeader, PortId, Port};
+pub use port::{PacketHeader, Port, PortId};

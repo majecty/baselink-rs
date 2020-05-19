@@ -20,10 +20,10 @@ use crate::services::*;
 use baselink::*;
 use fml::*;
 use impls::*;
+use parking_lot::RwLock;
 use rand::{rngs::StdRng, Rng};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::sync::RwLock;
 use std::thread;
 
 pub struct MyContext {
@@ -101,9 +101,9 @@ impl HandlePreset for Preset {
         assert_eq!(exchange.importer, get_module_config().id, "Invalid import request");
         if exchange.exporter == "Schedule" {
             assert_eq!(exchange.handles.len(), 1);
-            ctx.schedule.write().unwrap().replace(service_import!(Schedule, exchange.handles.pop().unwrap()));
+            ctx.schedule.write().replace(service_import!(Schedule, exchange.handles.pop().unwrap()));
         } else {
-            let mut guard = ctx.factories.write().unwrap();
+            let mut guard = ctx.factories.write();
             assert_eq!(exchange.handles.len(), 1);
             let h = service_import!(RelayerFactory, exchange.handles.pop().unwrap());
             guard.insert(exchange.exporter, h);
@@ -129,7 +129,7 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
         let mut paths = HashMap::new();
         for i in 0..parllel {
             let mut used_map = new_avail_map(ctx.number, 0);
-            let avail = ctx.schedule.read().unwrap().as_ref().unwrap().get();
+            let avail = ctx.schedule.read().as_ref().unwrap().get();
             // RelayerFactory::ask_path will require one thread always
             let mut at_least_1_for_all = true;
             for j in 0..number {
@@ -142,7 +142,7 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
                 }
             }
             if !at_least_1_for_all {
-                ctx.schedule.read().unwrap().as_ref().unwrap().set(avail);
+                ctx.schedule.read().as_ref().unwrap().set(avail);
                 continue
             }
             let mut avail = avail;
@@ -184,19 +184,19 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
             paths.insert(key.clone(), path);
             used_map_list.insert(key.clone(), used_map);
 
-            ctx.schedule.read().unwrap().as_ref().unwrap().set(avail);
+            ctx.schedule.read().as_ref().unwrap().set(avail);
         }
 
         {
-            let mut guard_answers = get_context().answers.write().unwrap();
+            let mut guard_answers = get_context().answers.write();
             guard_answers.clear();
             for (key, path) in paths.drain() {
                 guard_answers.insert(key, (path, format!("{}", rng.gen_range(0, 10000))));
             }
         }
 
-        let guard_answers = get_context().answers.read().unwrap();
-        let guard_factory = get_context().factories.read().unwrap();
+        let guard_answers = get_context().answers.read();
+        let guard_factory = get_context().factories.read();
         let mut runners = Vec::new();
         for (key, (path, answer)) in &*guard_answers {
             if path.len() < 2 {
@@ -223,7 +223,7 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
 
         while let Some((key, guess, answer)) = runners.pop() {
             assert_eq!(guess.join().unwrap(), answer);
-            let mut avail = ctx.schedule.read().unwrap().as_ref().unwrap().get();
+            let mut avail = ctx.schedule.read().as_ref().unwrap().get();
 
             for (avail_sub_list, used_sub_list) in avail.iter_mut().zip(used_map_list.remove(&key).unwrap().into_iter())
             {
@@ -231,7 +231,7 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
                     *avail_entry += *used_entry;
                 }
             }
-            ctx.schedule.read().unwrap().as_ref().unwrap().set(avail.clone());
+            ctx.schedule.read().as_ref().unwrap().set(avail.clone());
         }
     }
     Vec::new()
@@ -241,7 +241,7 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::intra::Intra, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
     // be careful of the following order!
-    fml::global::get().write().unwrap().no_drop = true;
+    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }
@@ -250,7 +250,7 @@ pub fn main_like(args: Vec<String>) {
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
     // be careful of the following order!
-    fml::global::get().write().unwrap().no_drop = true;
+    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }

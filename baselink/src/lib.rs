@@ -17,10 +17,10 @@
 extern crate codechain_basesandbox as cbsb;
 extern crate codechain_fml as fml;
 
-mod control_loop;
-mod context;
 mod bootstrap;
+mod context;
+mod control_loop;
 
-pub use context::{Config, get_module_config};
+pub use bootstrap::{find_port_id, HandleExchange, HandlePreset};
+pub use context::{get_module_config, Config};
 pub use control_loop::{run_control_loop, shutdown};
-pub use bootstrap::{HandleExchange, HandlePreset, find_port_id};

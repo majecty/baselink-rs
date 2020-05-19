@@ -36,7 +36,7 @@ impl RelayerFactory for OrdinaryFactory {
 
     /// Returns name of the next module to visit
     fn ask_path(&self, key: String, current: usize) -> Answer {
-        let guard_answers = get_context().answers.read().unwrap();
+        let guard_answers = get_context().answers.read();
         let entry = guard_answers.get(&key).unwrap();
         if current == entry.0.len() - 1 {
             Answer::End(entry.1.clone())
@@ -56,7 +56,7 @@ pub struct OrdinaryMachine {
 
 impl RelayerMachine for OrdinaryMachine {
     fn run(&self) -> String {
-        let guard_factory = get_context().factories.read().unwrap();
+        let guard_factory = get_context().factories.read();
         match guard_factory.get(&self.destination).unwrap().ask_path(self.key.clone(), self.current) {
             Answer::Next(x) => guard_factory
                 .get(&x)

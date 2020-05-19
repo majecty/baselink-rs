@@ -15,7 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use crossbeam::channel::{bounded, Receiver, Sender};
-use std::sync::{Arc, Mutex};
+use parking_lot::Mutex;
+use std::sync::Arc;
 
 /// Blocking concurrent Queue. (Crossbeam's queue doens't block)
 pub struct Queue<T> {
@@ -33,14 +34,14 @@ impl<T> Queue<T> {
     }
 
     pub fn push(&self, x: T) {
-        self.sender.lock().unwrap().send(x).unwrap();
+        self.sender.lock().send(x).unwrap();
     }
 
     pub fn pop(&self, timeout: Option<std::time::Duration>) -> Result<T, ()> {
         if let Some(duration) = timeout {
-            self.recver.lock().unwrap().recv_timeout(duration).map_err(|_| ())
+            self.recver.lock().recv_timeout(duration).map_err(|_| ())
         } else {
-            self.recver.lock().unwrap().recv().map_err(|_| ())
+            self.recver.lock().recv().map_err(|_| ())
         }
     }
 }

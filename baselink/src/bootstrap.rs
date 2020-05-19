@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use fml::HandleInstance;
+use serde::{Deserialize, Serialize};
 
 /// TODO: Replace this with LinkBootstrapping.
 #[derive(PartialEq, Serialize, Deserialize, Debug)]
@@ -24,7 +24,7 @@ pub trait HandlePreset {
 
 /// TODO: Replace this with LinkBootstrapping
 pub fn find_port_id(id: &str) -> Result<fml::PortId, ()> {
-    let table = fml::global::get().read().unwrap();
+    let table = fml::global::get().read();
     let keys: Vec<String> = (*table).map.iter().map(|x| (x.1).0.clone()).collect();
     Ok(*table.map.iter().find(|&(_, (name, ..))| name == id).ok_or(())?.0)
 }

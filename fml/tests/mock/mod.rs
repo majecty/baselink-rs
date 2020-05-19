@@ -20,9 +20,10 @@ extern crate codechain_fml as fml;
 
 use fml::*;
 use once_cell::sync::OnceCell;
+use parking_lot::RwLock;
 use std::cell::Cell;
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
 thread_local!(static INSTANCE_KEY: Cell<u32> = Cell::new(0));
 
@@ -42,10 +43,10 @@ fn get_key() -> u32 {
 
 static LOG: OnceCell<RwLock<HashMap<u32, String>>> = OnceCell::new();
 fn log(s: String) {
-    LOG.get_or_init(Default::default).write().unwrap().insert(get_key(), s);
+    LOG.get_or_init(Default::default).write().insert(get_key(), s);
 }
 pub fn get_log() -> String {
-    LOG.get_or_init(Default::default).write().unwrap().remove(&get_key()).unwrap()
+    LOG.get_or_init(Default::default).write().remove(&get_key()).unwrap()
 }
 
 // To keep the

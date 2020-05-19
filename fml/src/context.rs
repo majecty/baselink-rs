@@ -18,9 +18,9 @@ mod provider;
 
 use crate::port::Port;
 use crate::port::PortId;
+use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::{RwLock};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FmlConfig {
@@ -41,16 +41,6 @@ pub struct PortTable {
     /// You won't request deletion of handle because it doesn't matter.
     pub no_drop: bool,
 }
-
-/*
-impl PortTable {
-    /// TODO: Remove this in favor of the LinkBootstrapping
-    /// Find first occurence of given moudle Id and return corresponding PortId
-    pub fn find(&self, id: &str) -> Result<PortId, ()> {
-        Ok(*self.map.iter().find(|&(_, (config, ..))| config.id == id).ok_or(())?.0)
-    }
-}
-*/
 
 /// This manages thread-local keys for module instance discrimination
 /// in the intra-process setup.
@@ -84,7 +74,7 @@ pub mod global {
     use super::*;
     use single_process_support as codechain_fml;
 
-    context_provider!{RwLock<PortTable>}
+    context_provider! {RwLock<PortTable>}
     pub fn get() -> &'static Context {
         context_provider_mod::get()
     }
@@ -97,4 +87,3 @@ pub mod global {
         context_provider_mod::remove()
     }
 }
-

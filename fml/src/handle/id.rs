@@ -15,12 +15,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use super::{MethodId, TraitId};
-use crate::context::{InstanceKey};
+use crate::context::InstanceKey;
 use linkme::distributed_slice;
 use once_cell::sync::OnceCell;
+use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use std::sync::Mutex;
 
 // While you debug or test FML, there are two dangerous issues.
 //
@@ -69,10 +69,10 @@ static ONCE_CHECK: OnceCell<Mutex<[bool; INSTANCE_KEY_MAX]>> = OnceCell::new();
 /// If you build multiple instances into a single binary, it is ok to call multiple
 /// times since the following global flag will smartly skip consequent calls
 pub fn setup_identifiers(instance_key: InstanceKey, descriptor: &IdMap) {
-    if ONCE_CHECK.get_or_init(|| Mutex::new([false; INSTANCE_KEY_MAX])).lock().unwrap()[instance_key as usize] {
+    if ONCE_CHECK.get_or_init(|| Mutex::new([false; INSTANCE_KEY_MAX])).lock()[instance_key as usize] {
         panic!("setup_identifiers() has been called multiple times!")
     }
-    if ONCE_CHECK.get().unwrap().lock().unwrap().iter().any(|&x| x) {
+    if ONCE_CHECK.get().unwrap().lock().iter().any(|&x| x) {
         // You're ok to call this multiple times from different module, but not gonna re-setup.
         return
     }
@@ -109,5 +109,5 @@ pub fn setup_identifiers(instance_key: InstanceKey, descriptor: &IdMap) {
         }
     }
 
-    ONCE_CHECK.get().unwrap().lock().unwrap()[instance_key as usize] = true;
+    ONCE_CHECK.get().unwrap().lock()[instance_key as usize] = true;
 }
