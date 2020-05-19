@@ -112,8 +112,6 @@ pub fn initiate(_arg: Vec<u8>) -> Vec<u8> {
 #[cfg(feature = "single_process")]
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::intra::Intra, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
-    // be careful of the following order!
-    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }
@@ -121,8 +119,6 @@ pub fn main_like(args: Vec<String>) {
 #[cfg(not(feature = "single_process"))]
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
-    // be careful of the following order!
-    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }

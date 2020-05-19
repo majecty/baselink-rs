@@ -86,8 +86,6 @@ impl HandlePreset for Preset {
 #[cfg(feature = "single_process")]
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::intra::Intra, Preset>(args, Box::new(initializer), None);
-    // be careful of the following order!
-    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }
@@ -95,8 +93,6 @@ pub fn main_like(args: Vec<String>) {
 #[cfg(not(feature = "single_process"))]
 pub fn main_like(args: Vec<String>) {
     run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), None);
-    // be careful of the following order!
-    fml::global::get().write().no_drop = true;
     remove_context();
     fml::global::remove();
 }

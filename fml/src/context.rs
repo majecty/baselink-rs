@@ -37,9 +37,6 @@ pub struct PortTable {
     /// TODO: Though it uses HashMap now, we can issue PortIds in a series from 0 to ...
     /// Thus it may be optimized to use plain array later.
     pub map: HashMap<PortId, (String, PortId, Port)>,
-    /// If this is true, the host is trying to shutdown all the modules
-    /// You won't request deletion of handle because it doesn't matter.
-    pub no_drop: bool,
 }
 
 /// This manages thread-local keys for module instance discrimination
@@ -75,6 +72,26 @@ pub mod global {
     use single_process_support as codechain_fml;
 
     context_provider! {RwLock<PortTable>}
+    pub fn get() -> &'static Context {
+        context_provider_mod::get()
+    }
+
+    pub fn set(ctx: Context) {
+        context_provider_mod::set(ctx)
+    }
+
+    pub fn remove() {
+        context_provider_mod::remove()
+    }
+}
+
+/// Termination flag. If this is set true, drop() from imported service will be ignored.
+/// It is module author's job to utilize this.
+pub mod termination {
+    use super::*;
+    use single_process_support as codechain_fml;
+
+    context_provider! {std::sync::atomic::AtomicBool}
     pub fn get() -> &'static Context {
         context_provider_mod::get()
     }

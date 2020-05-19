@@ -75,11 +75,11 @@ pub fn run_control_loop<I: Ipc, H: HandlePreset>(
     let ports = RwLock::new(PortTable {
         config_fml: config_fml.clone(),
         map: HashMap::new(),
-        no_drop: false,
     });
     global::set(ports);
     crate::context::set_module_config(config);
     initializer();
+    termination::set(std::sync::atomic::AtomicBool::new(false));
 
     loop {
         let message: String = recv(&ctx);
@@ -123,11 +123,7 @@ pub fn run_control_loop<I: Ipc, H: HandlePreset>(
         }
         send(&ctx, &"done".to_owned());
     }
+    termination::get().store(true, std::sync::atomic::Ordering::Relaxed);
     crate::context::remove_module_config();
     ctx.terminate();
-}
-
-pub fn shutdown() {
-    fml::global::get().write().no_drop = true;
-    fml::global::remove();
 }

@@ -23,4 +23,4 @@ mod control_loop;
 
 pub use bootstrap::{find_port_id, HandleExchange, HandlePreset};
 pub use context::{get_module_config, Config};
-pub use control_loop::{run_control_loop, shutdown};
+pub use control_loop::{run_control_loop};

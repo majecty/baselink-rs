@@ -49,16 +49,15 @@ pub fn call<S: serde::Serialize, D: serde::de::DeserializeOwned>(
 }
 
 pub fn delete(handle: &HandleInstance) {
+    if context::termination::get().load(std::sync::atomic::Ordering::Relaxed) {
+        return;
+    }
     #[cfg(fml_statistics)]
     {
         crate::statistics::DELETE_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     }
-
     let context = context::global::get();
     let port_table = context.read();
-    if port_table.no_drop {
-        return
-    }
     let port = &port_table.map.get(&handle.port_id_importer).expect("PortTable corrupted").2;
     port.delete(handle.id);
 }
