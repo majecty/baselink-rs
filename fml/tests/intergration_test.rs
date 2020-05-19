@@ -34,6 +34,7 @@ use std::sync::Arc;
 
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct F {}
+
 #[fml_macro::service(service_env_test, a)]
 pub trait TestService: fml::Service {
     /// Make an invitation for a single visit toward itself
@@ -42,7 +43,7 @@ pub trait TestService: fml::Service {
     /// Returns name of the next module to visit
     fn fn2(&self, a2: &u8) -> String;
 
-    fn fn3(&self, f: F);
+    fn fn3(&self) -> String;
 }
 
 impl mock::TestDefault for SArc<dyn TestService> {
@@ -84,7 +85,9 @@ impl TestService for TestImpl {
         format!("{}", a2)
     }
 
-    fn fn3(&self, f: F) {}
+    fn fn3(&self) -> String {
+        self.name.clone()
+    }
 }
 
 #[test]
@@ -97,14 +100,28 @@ fn service_1() {
 
 #[test]
 fn service_2() {
-    /*
     mock::set_key(2);
-    let s = <dyn TestService as service_env::ImportService<dyn TestService>>::import(Default::default());
+    let si = <dyn TestService as service_env::ImportService<dyn TestService>>::import(Default::default());
+    si.fn1("s1".to_owned(), "s2", &[3]);
+    let (op, handle, method, (a1, a2, a3)): (String, HandleInstance, MethodId, (String, String, Vec<u8>)) = serde_cbor::from_slice(&mock::pop_log()).unwrap();
+    assert_eq!(op, "call");
+    // This number '7' is very specific to macro implementation.
+    assert_eq!(method, 7);
+    assert_eq!(a1, "a1");
+    assert_eq!(a2, "a2");
+    assert_eq!(a3, &[3]);
 
-    service_dispatch!(TestService, s, 8, &serde_cbor::to_vec(&1234), );
-    let x = s.fn1("qwe".to_owned(), 1).unwrap();
-    println!("{}", mock::get_log());
-    drop(s);
-    println!("{}", mock::get_log());
-    */
+    let se: Arc<dyn TestService> = Arc::new(TestImpl{handle: Default::default(), name: "Hi".to_owned()});
+    let mut buffer: Vec<u8> = vec![0; std::mem::size_of::<PacketHeader>()];
+    let cursor = {
+        let mut c = Cursor::new(&mut buffer);
+        c.set_position(std::mem::size_of::<PacketHeader>() as u64);
+        c
+    };
+    service_dispatch!(TestService, &*se, 7, &serde_cbor::to_vec(&("s1", "s2", &[3])).unwrap(), cursor);
+    
+
+
+
+    //let x = s.fn1("qwe".to_owned(), 1).unwrap();
 }

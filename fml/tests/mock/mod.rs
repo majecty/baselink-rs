@@ -24,6 +24,7 @@ use parking_lot::RwLock;
 use std::cell::Cell;
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::collections::VecDeque;
 
 thread_local!(static INSTANCE_KEY: Cell<u32> = Cell::new(0));
 
@@ -41,24 +42,43 @@ fn get_key() -> u32 {
     })
 }
 
-static LOG: OnceCell<RwLock<HashMap<u32, String>>> = OnceCell::new();
-fn log(s: String) {
-    LOG.get_or_init(Default::default).write().insert(get_key(), s);
+type LogQueue = VecDeque<Vec<u8>>;
+static LOG: OnceCell<RwLock<HashMap<u32, LogQueue>>> = OnceCell::new();
+type ServiceLogQueue = VecDeque< Arc<dyn Service>>;
+static SERVICE_LOG: OnceCell<RwLock<HashMap<u32, ServiceLogQueue>>> = OnceCell::new();
+
+fn push_log(s: Vec<u8>) {
+    let mut guard = LOG.get_or_init(Default::default).write();
+    if let Some(queue) = guard.get_mut(&get_key()) {
+        queue.push_back(s)
+    } else {
+        guard.insert(get_key(), VecDeque::new());
+    }
 }
-pub fn get_log() -> String {
-    LOG.get_or_init(Default::default).write().remove(&get_key()).unwrap()
+pub fn pop_log() -> Vec<u8> {
+    LOG.get_or_init(Default::default).write().remove(&get_key()).unwrap().pop_front().unwrap()
 }
 
-// To keep the
+fn push_service_log(s: Arc<dyn Service>) {
+    let mut guard = SERVICE_LOG.get_or_init(Default::default).write();
+    if let Some(queue) = guard.get_mut(&get_key()) {
+        queue.push_back(s)
+    } else {
+        guard.insert(get_key(), VecDeque::new());
+    }
+}
+pub fn pop_service_log() -> Arc<dyn Service> {
+    SERVICE_LOG.get_or_init(Default::default).write().remove(&get_key()).unwrap().pop_front().unwrap()
+}
+
+// We define this instead of std::default::Default because of the orphan rule.
 pub trait TestDefault {
     fn default() -> Self;
 }
 
-pub fn delete(port_id: PortId, handle: ServiceObjectId) {
-    log(format!("DELETE/{}/{:?}", port_id, handle));
-}
 pub fn register(port_id: PortId, handle_to_register: Arc<dyn Service>) -> HandleInstance {
-    log(format!("REGISTER/{}/{:?}", port_id, handle_to_register.get_handle()));
+    push_log(serde_cbor::to_vec(&("register", port_id)).unwrap());
+    push_service_log(handle_to_register);
     Default::default()
 }
 pub fn call<S: serde::Serialize + std::fmt::Debug, D: serde::de::DeserializeOwned + TestDefault>(
@@ -66,9 +86,9 @@ pub fn call<S: serde::Serialize + std::fmt::Debug, D: serde::de::DeserializeOwne
     method: MethodId,
     args: &S,
 ) -> D {
-    log(format!("CALL/{:?}/{}/{:?}", handle, method, args));
+    push_log(serde_cbor::to_vec(&("call", handle, method, args)).unwrap());
     TestDefault::default()
 }
-pub fn delete_remote(handle: &HandleInstance) {
-    log(format!("DELETE/{:?}", handle));
+pub fn delete(handle: &HandleInstance) {
+    push_log(serde_cbor::to_vec(&("delete", handle)).unwrap());
 }

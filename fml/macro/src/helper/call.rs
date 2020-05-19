@@ -99,7 +99,7 @@ pub fn generate_imported_struct(
         }
         impl Drop for #struct_ident {
             fn drop(&mut self) {
-                #fml_path::service_context::delete_remote(&self.handle)
+                #fml_path::service_context::delete(&self.handle)
             }
         }
         impl #fml_path::ImportService<dyn #trait_ident> for dyn #trait_ident {

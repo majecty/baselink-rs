@@ -27,7 +27,7 @@ pub fn id_trait_ident(the_trait: &syn::ItemTrait) -> Ident {
 }
 
 fn lit_index(index: usize) -> syn::Lit {
-    // We put a distinctive offset for easy debug.
+    // We put a distinctive offset for the easy debug.
     syn::Lit::Int(syn::LitInt::new(&format!("{}", index + 7), Span::call_site()))
 }
 
@@ -57,7 +57,7 @@ pub fn generate_id_registeration(
     let mut result = TokenStream2::new();
 
     let lit_trait_name = syn::LitStr::new(&format!("{}", the_trait.ident), Span::call_site());
-    // registeration for trait itslef
+    // registeration for trait itself
     result.extend({
         let id_ident = id_trait_ident(&the_trait);
         let id_entry_ident = id_trait_entry_ident(&the_trait);
