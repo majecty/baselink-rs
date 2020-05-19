@@ -78,11 +78,7 @@ fn service_handler(
         if header.method == DELETE_INDICATOR {
             delete(dispatcher.get_id(), header.handle);
         } else {
-            dispatcher.dispatch(header.handle, header.method, &data, {
-                let mut c = Cursor::new(&mut buffer);
-                c.set_position(std::mem::size_of::<PacketHeader>() as u64);
-                c
-            });
+            dispatcher.dispatch(header.handle, header.method, &data, { Cursor::new(&mut buffer) });
         }
         header.write(&mut buffer);
         response.send(buffer).unwrap();
