@@ -17,20 +17,12 @@
 extern crate codechain_basesandbox as cbsb;
 
 mod context;
-pub mod impl_prelude;
 mod port;
 pub mod queue;
 mod service;
-pub mod service_prelude;
 pub mod statistics;
 #[cfg(test)]
 mod tests;
-#[cfg(test)]
-#[macro_use]
-extern crate fml_macro;
-#[cfg(test)]
-#[macro_use]
-extern crate linkme;
 #[cfg(test)]
 #[macro_use]
 extern crate intertrait;
@@ -45,3 +37,24 @@ pub use service::SArc;
 pub use service::{
     dispatch::PortDispatcher, dispatch::ServiceDispatcher, HandleInstance, MethodId, Service, ServiceObjectId, TraitId,
 };
+
+/// You should not import this! This is for the auto-generated code
+pub mod env {
+    pub use crate::context::global;
+    pub use crate::port::{PacketHeader, Port, PortId};
+    pub use crate::service::dispatch::ServiceDispatcher;
+    pub use crate::service::id::{MID_REG, TID_REG};
+    pub use crate::service::service_context;
+    pub use crate::service::{DispatchService, ExportService, IdOfService, ImportService, SArc};
+    pub use crate::service::{HandleInstance, MethodId, MethodIdAtomic, Service, TraitId, TraitIdAtomic, ID_ORDERING};
+}
+
+/// You should not import this! This is for the auto-generated code
+pub mod env_mock {
+    pub use crate::context::global;
+    pub use crate::port::{PacketHeader, Port, PortId};
+    pub use crate::service::dispatch::ServiceDispatcher;
+    pub use crate::service::id::{MID_REG, TID_REG};
+    pub use crate::service::{DispatchService, ExportService, IdOfService, ImportService, SArc};
+    pub use crate::service::{HandleInstance, MethodId, MethodIdAtomic, Service, TraitId, TraitIdAtomic, ID_ORDERING};
+}

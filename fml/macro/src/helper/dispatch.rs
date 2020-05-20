@@ -22,7 +22,6 @@ use proc_macro2::{Span, TokenStream as TokenStream2};
 pub fn generate_dispatch(
     MacroArgs {
         fml_path,
-        ..
     }: &MacroArgs,
     the_trait: &syn::ItemTrait,
 ) -> Result<TokenStream2, TokenStream2> {
@@ -140,7 +139,7 @@ pub fn generate_dispatch(
     let result = quote! {
         impl #fml_path::ExportService<dyn #trait_ident> for dyn #trait_ident {
             fn export(port_id: #fml_path::PortId, handle: std::sync::Arc<dyn #trait_ident>) -> #fml_path::HandleInstance {
-                #fml_path::service_context::register(port_id, handle.cast::<dyn #fml_path::Service>().expect("Trait casting failed"))
+                #fml_path::service_context::register(port_id, intertrait::cast::CastArc::cast::<dyn #fml_path::Service>(handle).expect("Trait casting failed"))
             }
         }
         impl #fml_path::DispatchService<dyn #trait_ident> for dyn #trait_ident {

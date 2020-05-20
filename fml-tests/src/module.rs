@@ -17,7 +17,7 @@
 use baselink::*;
 use cbsb::execution::executor::{self, Executor};
 use cbsb::ipc::generate_random_name;
-use cbsb::ipc::{Ipc, servo_channel::ServoChannel as DefaultIpc, intra::Intra};
+use cbsb::ipc::{intra::Intra, servo_channel::ServoChannel as DefaultIpc, Ipc};
 use fml::*;
 use std::collections::HashMap;
 

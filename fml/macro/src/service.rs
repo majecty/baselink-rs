@@ -22,23 +22,20 @@ use syn::Token;
 
 pub struct MacroArgs {
     pub fml_path: syn::Path,
-    pub service_context: syn::Path,
 }
 
 impl Parse for MacroArgs {
     fn parse(input: ParseStream) -> syn::parse::Result<Self> {
         if input.is_empty() {
-            return Err(input.error("You must supply two arguments (FML Path, Service Context)"))
+            return Err(input.error("You must supply one argument (FML Path)"))
         }
         let mut args = Punctuated::<syn::Path, Token![,]>::parse_terminated(input)?;
-        if args.len() != 2 {
-            return Err(input.error("You must supply two arguments (FML Path, Service Context)"))
+        if args.len() != 1 {
+            return Err(input.error("You must supply one argument (FML Path)"))
         }
-        let service_context = args.pop().unwrap().into_value();
         let fml_path = args.pop().unwrap().into_value();
         Ok(MacroArgs {
             fml_path,
-            service_context,
         })
     }
 }
@@ -81,6 +78,13 @@ pub fn service(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
         #dispatch
         #import
     }
+}
+
+pub fn service_default(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    if !args.is_empty() {
+        return syn::Error::new_spanned(input, "#[service] does not take any argument").to_compile_error()
+    }
+    service(quote! {codechain_fml::service_env}, input)
 }
 
 #[cfg(test)]

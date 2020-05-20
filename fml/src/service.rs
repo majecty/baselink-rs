@@ -35,7 +35,6 @@ pub type TraitIdAtomic = std::sync::atomic::AtomicU16;
 
 // We avoid using additional space with Option<>, by these.
 pub const UNDECIDED_INDEX: InstanceId = std::u16::MAX;
-pub const UNDECIDED_TRAIT: TraitId = std::u16::MAX;
 pub const UNDECIDED_PORT: PortId = std::u16::MAX;
 
 /// This struct represents an index to a service object in port server's registry
@@ -134,7 +133,7 @@ pub trait IdOfService<T: ?Sized + Service> {
 #[macro_export]
 macro_rules! service_export {
     ($service_trait: path, $port_id: expr, $arg: expr) => {
-        <dyn $service_trait as codechain_fml::service_prelude::service_env::ExportService<dyn $service_trait>>::export(
+        <dyn $service_trait as codechain_fml::env::ExportService<dyn $service_trait>>::export(
             $port_id, $arg,
         )
     };
@@ -143,7 +142,7 @@ macro_rules! service_export {
 #[macro_export]
 macro_rules! service_import {
     ($service_trait: path, $arg: expr) => {
-        <dyn $service_trait as codechain_fml::service_prelude::service_env::ImportService<dyn $service_trait>>::import(
+        <dyn $service_trait as codechain_fml::env::ImportService<dyn $service_trait>>::import(
             $arg,
         )
     };
@@ -152,7 +151,7 @@ macro_rules! service_import {
 #[macro_export]
 macro_rules! service_dispatch {
     ($service_trait: path, $object: expr, $method: expr, $arguments: expr, $return_buffer: expr) => {
-        <dyn $service_trait as codechain_fml::service_prelude::service_env::DispatchService<dyn $service_trait>>::dispatch(
+        <dyn $service_trait as codechain_fml::env::DispatchService<dyn $service_trait>>::dispatch(
             $object,
             $method,
             $arguments,
@@ -164,7 +163,7 @@ macro_rules! service_dispatch {
 #[macro_export]
 macro_rules! service_id {
     ($service_trait: path) => {
-        <dyn $service_trait as codechain_fml::service_prelude::service_env::IdOfService<dyn $service_trait>>::id()
+        <dyn $service_trait as codechain_fml::env::IdOfService<dyn $service_trait>>::id()
     };
 }
 

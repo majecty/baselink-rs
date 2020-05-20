@@ -16,10 +16,10 @@
 
 use super::get_context;
 use crate::services::*;
-use fml::impl_prelude::*;
+use baselink::prelude::*;
 use std::sync::Arc;
 
-#[fml_macro::service_impl(impl_env, RelayerFactory)]
+#[fml_macro::service_impl(fml::env, RelayerFactory)]
 pub struct OrdinaryFactory {
     pub handle: HandleInstance,
 }
@@ -46,7 +46,7 @@ impl RelayerFactory for OrdinaryFactory {
     }
 }
 
-#[fml_macro::service_impl(impl_env, RelayerMachine)]
+#[fml_macro::service_impl(fml::env, RelayerMachine)]
 pub struct OrdinaryMachine {
     pub handle: HandleInstance,
     pub key: String,

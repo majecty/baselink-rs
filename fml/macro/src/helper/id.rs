@@ -50,7 +50,6 @@ fn id_trait_setter_ident(the_trait: &syn::ItemTrait) -> Ident {
 pub fn generate_id_registeration(
     MacroArgs {
         fml_path,
-        ..
     }: &MacroArgs,
     the_trait: &syn::ItemTrait,
 ) -> Result<TokenStream2, TokenStream2> {

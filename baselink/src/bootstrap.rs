@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables)]
+
 use fml::*;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -48,7 +50,7 @@ impl ExportingServicePool {
 
     pub fn export(&mut self, port_id: PortId, index: usize) -> Vec<u8> {
         let service = self.pool[index].take().unwrap();
-        let handle = fml::service_prelude::service_env::service_context::register(port_id, service);
+        let handle = fml::env::service_context::register(port_id, service);
         serde_cbor::to_vec(&handle).unwrap()
     }
 }

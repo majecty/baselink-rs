@@ -22,7 +22,6 @@ use quote::ToTokens;
 pub fn generate_imported_struct(
     MacroArgs {
         fml_path,
-        ..
     }: &MacroArgs,
     the_trait: &syn::ItemTrait,
 ) -> Result<TokenStream2, TokenStream2> {

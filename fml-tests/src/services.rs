@@ -17,15 +17,14 @@
 // Common dependencis for services
 extern crate codechain_fml as fml;
 
-pub use fml::service_prelude::*;
-pub use fml::SArc;
+pub use baselink::prelude::*;
 
-#[fml_macro::service(service_env, a)]
+#[fml_macro::service(service_env)]
 pub trait HelloFactory: fml::Service {
     fn create(&self, name: &str) -> SArc<dyn HelloRobot>;
 }
 
-#[fml_macro::service(service_env, a)]
+#[fml_macro::service(service_env)]
 pub trait HelloRobot: fml::Service {
     fn hello(&self, flag: i32) -> String;
 }
@@ -53,7 +52,7 @@ pub fn new_avail_map(size: usize, value: usize) -> AvailiableMap {
     result
 }
 
-#[fml_macro::service(service_env, a)]
+#[fml_macro::service(service_env)]
 pub trait Schedule: fml::Service {
     /// Get the schedule. It is then locked.
     fn get(&self) -> AvailiableMap;
@@ -62,7 +61,7 @@ pub trait Schedule: fml::Service {
     fn set(&self, s: AvailiableMap);
 }
 
-#[fml_macro::service(service_env, a)]
+#[fml_macro::service(service_env)]
 pub trait RelayerFactory: fml::Service {
     /// Make an invitation for a single visit toward itself
     fn create(&self, key: String, current: usize, destination: String) -> SArc<dyn RelayerMachine>;
@@ -71,7 +70,7 @@ pub trait RelayerFactory: fml::Service {
     fn ask_path(&self, key: String, current: usize) -> Answer;
 }
 
-#[fml_macro::service(service_env, a)]
+#[fml_macro::service(service_env)]
 pub trait RelayerMachine: fml::Service {
     /// Recursively traverse all the path and query the answer for the destination
     fn run(&self) -> String;

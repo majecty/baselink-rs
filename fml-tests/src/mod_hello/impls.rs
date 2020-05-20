@@ -15,12 +15,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use crate::services::*;
-use fml::impl_prelude::*;
+use baselink::prelude::*;
 use std::sync::Arc;
 
-#[fml_macro::service_impl(impl_env, HelloFactory)]
+#[fml_macro::service_impl(fml::env, HelloFactory)]
 pub struct Factory {
-    pub handle: HandleInstance,
+    pub handle: fml::HandleInstance,
 }
 
 impl HelloFactory for Factory {
@@ -32,7 +32,7 @@ impl HelloFactory for Factory {
     }
 }
 
-#[fml_macro::service_impl(impl_env, HelloRobot)]
+#[fml_macro::service_impl(fml::env, HelloRobot)]
 pub struct Robot {
     pub handle: HandleInstance,
     pub name: String,

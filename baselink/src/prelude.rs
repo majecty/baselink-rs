@@ -14,14 +14,4 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-// This module provides required components in FML while expanding FML macro.
-
-pub mod impl_env {
-    pub use crate::service::dispatch::ServiceDispatcher;
-    pub use crate::service::Service;
-    pub use crate::service::{DispatchService, HandleInstance, IdOfService, MethodId, TraitId};
-    pub use std::sync::Arc;
-}
-
-pub use crate::service::HandleInstance;
-pub use crate::service::SArc;
+pub use fml::{HandleInstance, SArc};

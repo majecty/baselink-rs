@@ -20,6 +20,7 @@ extern crate codechain_fml as fml;
 mod bootstrap;
 mod context;
 mod control_loop;
+pub mod prelude;
 
 pub use bootstrap::{find_port_id, HandleExchange, HandlePreset};
 pub use context::{get_module_config, Config};

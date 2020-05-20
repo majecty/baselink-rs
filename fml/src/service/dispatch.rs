@@ -16,7 +16,7 @@
 
 use super::table::ServiceObjectTable;
 use super::PortId;
-use super::{HandleInstance, MethodId, Service, ServiceObjectId};
+use super::{HandleInstance, MethodId, Service, ServiceObjectId, UNDECIDED_PORT};
 use crate::context;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -72,6 +72,20 @@ pub fn register(port_id: PortId, mut handle_to_register: Arc<dyn Service>) -> Ha
     }
     let context = context::global::get();
     let port_table = context.read();
+
+    let err_msg = "The service object you're trying to export is contaminated. It could be an imported handle, not created by you.";
+    assert_eq!(
+        Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_exporter,
+        UNDECIDED_PORT,
+        "{}",
+        err_msg
+    );
+    assert_eq!(
+        Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_importer,
+        UNDECIDED_PORT,
+        "{}",
+        err_msg
+    );
 
     Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_exporter = port_id;
     Arc::get_mut(&mut handle_to_register).unwrap().get_handle_mut().port_id_importer =
