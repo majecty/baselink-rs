@@ -118,7 +118,7 @@ pub fn main_like(args: Vec<String>) {
 
 #[cfg(not(feature = "single_process"))]
 pub fn main_like(args: Vec<String>) {
-    run_control_loop::<cbsb::ipc::DefaultIpc, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
+    run_control_loop::<cbsb::ipc::servo_channel::ServoChannel, Preset>(args, Box::new(initializer), Some(Box::new(initiate)));
     remove_context();
     fml::global::remove();
 }

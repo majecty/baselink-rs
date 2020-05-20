@@ -9,7 +9,7 @@ default = ["codechain-fml/default", "baselink/default"]
 single_process = ["codechain-fml/single_process", "baselink/single_process"]
 
 [dependencies]
-codechain-basesandbox = { path = "/home/junha/Projects/foundry-reference/basesandbox" }
+codechain-basesandbox = { git = "https://github.com/CodeChain-io/foundry-sandbox" }
 codechain-fml = { path = "../fml"}
 baselink = {path = "../baselink"}
 fml-macro = { path = "../fml/macro" }

@@ -17,7 +17,7 @@
 use baselink::*;
 use cbsb::execution::executor::{self, Executor};
 use cbsb::ipc::generate_random_name;
-use cbsb::ipc::Ipc;
+use cbsb::ipc::{Ipc, servo_channel::ServoChannel as DefaultIpc, intra::Intra};
 use fml::*;
 use std::collections::HashMap;
 
@@ -100,13 +100,13 @@ pub trait LinkMessage {
     fn link_message() -> &'static str;
 }
 
-impl LinkMessage for cbsb::ipc::DefaultIpc {
+impl LinkMessage for DefaultIpc {
     fn link_message() -> &'static str {
         "DomainSocket"
     }
 }
 
-impl LinkMessage for cbsb::ipc::intra::Intra {
+impl LinkMessage for Intra {
     fn link_message() -> &'static str {
         "Intra"
     }

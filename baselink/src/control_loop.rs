@@ -17,7 +17,7 @@
 use crate::bootstrap::*;
 use crate::context::*;
 use cbsb::execution::executee;
-use cbsb::ipc::{intra, DefaultIpc, Ipc};
+use cbsb::ipc::{intra, servo_channel::ServoChannel as DefaultIpc, Ipc};
 use fml::*;
 use parking_lot::RwLock;
 use std::collections::HashMap;

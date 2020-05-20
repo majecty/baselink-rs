@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 crossbeam = "0.7.3"
-codechain-basesandbox = { path = "/home/junha/Projects/foundry-reference/basesandbox" }
+codechain-basesandbox = { git = "https://github.com/CodeChain-io/foundry-sandbox" }
 codechain-fml = {path = "../fml"}
 rand = "0.6.1"
 serde = { version = "1.0", features = ["derive"] }
