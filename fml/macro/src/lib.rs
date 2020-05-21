@@ -39,13 +39,23 @@ pub fn service_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
+pub fn service_adv(args: TokenStream, input: TokenStream) -> TokenStream {
+    TokenStream::from(service::service_adv(TokenStream2::from(args), TokenStream2::from(input)))
+}
+
+#[proc_macro_attribute]
+pub fn service_impl_adv(args: TokenStream, input: TokenStream) -> TokenStream {
+    TokenStream::from(service_impl::service_impl_adv(TokenStream2::from(args), TokenStream2::from(input)))
+}
+
+#[proc_macro_attribute]
 pub fn service_debug(args: TokenStream, input: TokenStream) -> TokenStream {
-    println!("{}", service::service(TokenStream2::from(args), TokenStream2::from(input)));
+    println!("{}", service::service_adv(TokenStream2::from(args), TokenStream2::from(input)));
     TokenStream::new()
 }
 
 #[proc_macro_attribute]
 pub fn service_impl_debug(args: TokenStream, input: TokenStream) -> TokenStream {
-    println!("{}", service_impl::service_impl(TokenStream2::from(args), TokenStream2::from(input)));
+    println!("{}", service_impl::service_impl_adv(TokenStream2::from(args), TokenStream2::from(input)));
     TokenStream::new()
 }

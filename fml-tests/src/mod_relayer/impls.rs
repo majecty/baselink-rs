@@ -19,7 +19,7 @@ use crate::services::*;
 use baselink::prelude::*;
 use std::sync::Arc;
 
-#[fml_macro::service_impl(fml::env, RelayerFactory)]
+#[fml_macro::service_impl(RelayerFactory)]
 pub struct OrdinaryFactory {
     pub handle: HandleInstance,
 }
@@ -46,7 +46,7 @@ impl RelayerFactory for OrdinaryFactory {
     }
 }
 
-#[fml_macro::service_impl(fml::env, RelayerMachine)]
+#[fml_macro::service_impl(RelayerMachine)]
 pub struct OrdinaryMachine {
     pub handle: HandleInstance,
     pub key: String,

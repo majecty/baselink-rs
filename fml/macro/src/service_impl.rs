@@ -87,7 +87,7 @@ impl Parse for MacroArgs {
     }
 }
 
-pub fn service_impl(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
+pub fn service_impl_adv(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
     let args: MacroArgs = syn::parse2(args).unwrap();
 
     let source_struct = match syn::parse2::<syn::ItemStruct>(input.clone()) {
@@ -101,4 +101,8 @@ pub fn service_impl(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
         Ok(x) => x,
         Err(x) => x,
     }
+}
+
+pub fn service_impl(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    service_impl_adv(quote! {codechain_fml::env, #args}, input)
 }

@@ -37,7 +37,7 @@ fn distinct_handle(i: u16) -> HandleInstance {
     }
 }
 
-#[fml_macro::service(env_mock)]
+#[fml_macro::service_adv(env_mock)]
 pub trait TestService: fml::Service {
     /// Make an invitation for a single visit toward itself
     fn fn1(&self, a1: String, a2: &str, a3: &[u8]) -> SArc<dyn TestService>;
@@ -67,7 +67,7 @@ impl mock::TestDefault for () {
     fn default() -> Self {}
 }
 
-#[fml_macro::service_impl(env, TestService)]
+#[fml_macro::service_impl_adv(env, TestService)]
 pub struct TestImpl {
     pub handle: fml::HandleInstance,
     pub name: String,

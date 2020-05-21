@@ -18,7 +18,7 @@ use super::get_context;
 use crate::services::*;
 use baselink::prelude::*;
 
-#[fml_macro::service_impl(fml::env, Schedule)]
+#[fml_macro::service_impl(Schedule)]
 pub struct MySchedule {
     pub handle: HandleInstance,
 }

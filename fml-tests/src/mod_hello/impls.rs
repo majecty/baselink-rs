@@ -18,7 +18,7 @@ use crate::services::*;
 use baselink::prelude::*;
 use std::sync::Arc;
 
-#[fml_macro::service_impl(fml::env, HelloFactory)]
+#[fml_macro::service_impl(HelloFactory)]
 pub struct Factory {
     pub handle: fml::HandleInstance,
 }
@@ -32,7 +32,7 @@ impl HelloFactory for Factory {
     }
 }
 
-#[fml_macro::service_impl(fml::env, HelloRobot)]
+#[fml_macro::service_impl(HelloRobot)]
 pub struct Robot {
     pub handle: HandleInstance,
     pub name: String,

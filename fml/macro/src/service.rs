@@ -43,7 +43,7 @@ impl Parse for MacroArgs {
 // TODO: Take an optional additional identifier to generate unique key for id registeration.
 // This will allow user to have different service traits with the same name.
 // (But of course in different name spaces)
-pub fn service(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
+pub fn service_adv(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
     let source_trait = match syn::parse2::<syn::ItemTrait>(input.clone()) {
         Ok(x) => x,
         Err(_) => return syn::Error::new_spanned(input, "You can use #[service] only on a trait").to_compile_error(),
@@ -80,11 +80,11 @@ pub fn service(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
     }
 }
 
-pub fn service_default(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
+pub fn service(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
     if !args.is_empty() {
         return syn::Error::new_spanned(input, "#[service] does not take any argument").to_compile_error()
     }
-    service(quote! {codechain_fml::service_env}, input)
+    service_adv(quote! {codechain_fml::env}, input)
 }
 
 #[cfg(test)]
