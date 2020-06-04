@@ -1,0 +1,8 @@
+[package]
+name = "codechain-basesandbox"
+version = "0.1.0"
+authors = ["CodeChain Team <hi@codechain.io>"]
+edition = "2018"
+
+[dependencies]
+remote-trait-object = { path = "../remote-trait-object" }

@@ -18,7 +18,7 @@ mod client;
 mod server;
 
 use crate::ipc::multiplex::{MultiplexResult, Multiplexer};
-use std::sync::mpsc::{Receiver, Sender};
+use crate::ipc::{IpcRecv, IpcSend};
 
 pub struct Port {
     _multiplexer: Multiplexer,
@@ -27,9 +27,11 @@ pub struct Port {
 }
 
 impl Port {
-    pub fn new<F>(send: Sender<String>, recv: Receiver<String>, dispatcher: F) -> Self
+    pub fn new<F, Sender, Receiver>(send: Sender, recv: Receiver, dispatcher: F) -> Self
     where
         F: Fn(String) -> String + Send + 'static,
+        Sender: IpcSend + 'static,
+        Receiver: IpcRecv + 'static,
     {
         let MultiplexResult {
             multiplexer,
