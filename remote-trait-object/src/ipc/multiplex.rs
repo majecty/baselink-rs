@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use crossbeam::channel::{self, Receiver};
+use crossbeam::channel::{self, Sender, Receiver};
 use std::thread;
 
 pub struct MultiplexResult {
@@ -25,6 +25,7 @@ pub struct MultiplexResult {
 
 pub struct Multiplexer {
     _receiver_thread: Option<thread::JoinHandle<()>>,
+    termination_sender: Sender<()>
 }
 
 impl Multiplexer {
