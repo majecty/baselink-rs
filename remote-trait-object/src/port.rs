@@ -19,9 +19,10 @@ mod server;
 
 use crate::ipc::multiplex::{MultiplexResult, Multiplexer};
 use crossbeam::channel::{Receiver, Sender};
+use std::ops::Deref;
 
 pub struct Port {
-    multiplexer: Option<Multiplexer>,
+    multiplexer: ShutdownHelper<Multiplexer>,
     server: Option<server::Server>,
     client: client::Client,
 }
@@ -41,7 +42,7 @@ impl Port {
         Self {
             client,
             server: Some(server),
-            multiplexer: Some(multiplexer),
+            multiplexer: ShutdownHelper::new(multiplexer),
         }
     }
 
@@ -53,7 +54,33 @@ impl Port {
 impl Drop for Port {
     fn drop(&mut self) {
         // Shutdown multiplexer before server
-        self.multiplexer.take().unwrap().shutdown();
+        self.multiplexer.take().shutdown();
         self.server.take().unwrap().shutdown();
+    }
+}
+
+/// ShutdownHelper<T> works like T except it can take inner value in uninitialize process.
+struct ShutdownHelper<T> {
+    value: Option<T>,
+}
+
+impl<T> ShutdownHelper<T> {
+    pub fn new(value: T) -> Self {
+        Self { value: Some(value) }
+    }
+
+    pub fn take(&mut self) -> T {
+        self.value.take().unwrap()
+    }
+}
+
+impl<T> Deref for ShutdownHelper<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self
+            .value
+            .as_ref()
+            .expect("Do not use inner value after take")
     }
 }
