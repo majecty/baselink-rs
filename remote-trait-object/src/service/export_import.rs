@@ -38,25 +38,11 @@ pub trait ToRemote<T: ?Sized + Service> {
 }
 
 // These functions are utilities for the generic traits above
-pub fn export_service_box<T: ?Sized + Service>(context: &crate::context::Context, service: Box<T>) -> HandleToExchange
-where
-    Box<T>: ToDispatcher<T>, {
-    context.get_port().upgrade().unwrap().register(<Box<T> as ToDispatcher<T>>::to_dispatcher(service))
-}
-
-pub fn export_service_arc<T: ?Sized + Service>(context: &crate::context::Context, service: Arc<T>) -> HandleToExchange
-where
-    Arc<T>: ToDispatcher<T>, {
-    context.get_port().upgrade().unwrap().register(<Arc<T> as ToDispatcher<T>>::to_dispatcher(service))
-}
-
-pub fn export_service_rwlock<T: ?Sized + Service>(
+pub fn export_service<T: ?Sized + Service>(
     context: &crate::context::Context,
-    service: Arc<RwLock<T>>,
-) -> HandleToExchange
-where
-    Arc<RwLock<T>>: ToDispatcher<T>, {
-    context.get_port().upgrade().unwrap().register(<Arc<RwLock<T>> as ToDispatcher<T>>::to_dispatcher(service))
+    service: impl ToDispatcher<T>,
+) -> HandleToExchange {
+    context.get_port().upgrade().unwrap().register(service.to_dispatcher())
 }
 
 pub fn import_service_box<T: ?Sized + Service>(context: &crate::context::Context, handle: HandleToExchange) -> Box<T>
