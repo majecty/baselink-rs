@@ -184,8 +184,8 @@ pub fn generate_dispatcher(source_trait: &syn::ItemTrait) -> Result<TokenStream2
                     #if_else_clauses_rwlock
                 }
             }
-            impl #env_path::ToDispatcher<dyn #trait_ident> for Box<dyn #trait_ident> {
-                fn to_dispatcher(self) -> std::sync::Arc<dyn #env_path::Dispatch> {
+            impl #env_path::FromBox for dyn #trait_ident {
+                fn from_box(self: Box<Self>) -> std::sync::Arc<dyn #env_path::Dispatch> {
                     std::sync::Arc::new(#box_dispatcher_ident::new(self))
                 }
             }
@@ -207,8 +207,8 @@ pub fn generate_dispatcher(source_trait: &syn::ItemTrait) -> Result<TokenStream2
                     #if_else_clauses
                 }
             }
-            impl #env_path::ToDispatcher<dyn #trait_ident> for Box<dyn #trait_ident> {
-                fn to_dispatcher(self) -> std::sync::Arc<dyn #env_path::Dispatch> {
+            impl #env_path::FromBox for dyn #trait_ident {
+                fn from_box(self: Box<Self>) -> std::sync::Arc<dyn #env_path::Dispatch> {
                     std::sync::Arc::new(#box_dispatcher_ident::new(self))
                 }
             }
@@ -234,9 +234,9 @@ pub fn generate_dispatcher(source_trait: &syn::ItemTrait) -> Result<TokenStream2
                     #if_else_clauses
                 }
             }
-            impl #env_path::ToDispatcher<dyn #trait_ident> for std::sync::Arc<dyn #trait_ident> {
-                fn to_dispatcher(self) -> std::sync::Arc<dyn #env_path::Dispatch> {
-                    std::sync::Arc::new(#arc_dispatcher_ident::new(self))
+            impl #env_path::FromArc for dyn #trait_ident {
+                fn from_arc(a: std::sync::Arc<Self>) -> std::sync::Arc<dyn #env_path::Dispatch> {
+                    std::sync::Arc::new(#arc_dispatcher_ident::new(a))
                 }
             }
         }
@@ -258,9 +258,10 @@ pub fn generate_dispatcher(source_trait: &syn::ItemTrait) -> Result<TokenStream2
                 #if_else_clauses_rwlock
             }
         }
-        impl #env_path::ToDispatcher<dyn #trait_ident> for std::sync::Arc<parking_lot::RwLock<dyn #trait_ident>> {
-            fn to_dispatcher(self) -> std::sync::Arc<dyn #env_path::Dispatch> {
-                std::sync::Arc::new(#rwlock_dispatcher_ident::new(self))
+
+        impl #env_path::FromArcRwlock for dyn #trait_ident {
+            fn from_arc_rwlock(a: std::sync::Arc<parking_lot::RwLock<Self>>) -> std::sync::Arc<dyn #env_path::Dispatch> {
+                std::sync::Arc::new(#rwlock_dispatcher_ident::new(a))
             }
         }
     };

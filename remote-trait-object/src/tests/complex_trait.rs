@@ -108,7 +108,9 @@ fn init_logger() {
 
 fn create_remote_a(port: Arc<dyn Port>) -> Arc<dyn A> {
     let a: Arc<dyn A> = Arc::new(SimpleA::new());
-    let handle = port.register(<Arc<dyn A> as ToDispatcher<dyn A>>::to_dispatcher(a));
+    let handle =
+      // port.register(<Arc<dyn A> as ToDispatcher<dyn A>>::to_dispatcher(a));
+      port.register(a.to_dispatcher());
     <Arc<dyn A> as ToRemote<dyn A>>::to_remote(Arc::downgrade(&port), handle)
 }
 

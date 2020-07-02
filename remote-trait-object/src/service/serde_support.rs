@@ -80,12 +80,12 @@ pub(crate) mod port_thread_local {
     }
 }
 
-impl<P: ?Sized + Service, T: ToDispatcher<P>> Serialize for ServicePointer<T, P> {
+impl<P: ?Sized + Service, T: ToDispatcher> Serialize for ServicePointer<T, P> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer, {
         let service = self.take();
-        let handle = port_thread_local::get_port().upgrade().unwrap().register(T::to_dispatcher(service));
+        let handle = port_thread_local::get_port().upgrade().unwrap().register(service.to_dispatcher());
         handle.serialize(serializer)
     }
 }
@@ -139,8 +139,8 @@ mod tests {
             }
         }
 
-        impl ToDispatcher<dyn Foo> for Arc<dyn Foo> {
-            fn to_dispatcher(self) -> Arc<dyn Dispatch> {
+        impl FromArc for dyn Foo {
+            fn from_arc(_a: Arc<Self>) -> Arc<dyn Dispatch> {
                 Arc::new(FooImpl)
             }
         }

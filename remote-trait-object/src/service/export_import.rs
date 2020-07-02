@@ -23,13 +23,38 @@ use std::sync::Arc;
 // These tratis will be implement by `dyn ServiceTrait` where `T = dyn ServiceTrait` as well.
 // Macro will implement this trait with the target(expanding) service trait.
 
-/// Unused T is for avoiding violation of the orphan rule
-/// P will be local type for the crate, and that makes it possible to
-/// ```ignore
-/// impl ToDispatcher<dyn MyService> for Box<dyn MyService>
-/// ```
-pub trait ToDispatcher<T: ?Sized + Service> {
+pub trait ToDispatcher {
     fn to_dispatcher(self) -> Arc<dyn Dispatch>;
+}
+
+pub trait FromBox {
+    fn from_box(self: Box<Self>) -> Arc<dyn Dispatch>;
+}
+
+pub trait FromArc {
+    fn from_arc(a: Arc<Self>) -> Arc<dyn Dispatch>;
+}
+
+pub trait FromArcRwlock {
+    fn from_arc_rwlock(a: Arc<RwLock<Self>>) -> Arc<dyn Dispatch>;
+}
+
+impl<T: FromBox + ?Sized> ToDispatcher for Box<T> {
+    fn to_dispatcher(self) -> Arc<dyn Dispatch> {
+        self.from_box()
+    }
+}
+
+impl<T: FromArc + ?Sized> ToDispatcher for Arc<T> {
+    fn to_dispatcher(self) -> Arc<dyn Dispatch> {
+        FromArc::from_arc(self)
+    }
+}
+
+impl<T: FromArcRwlock + ?Sized> ToDispatcher for Arc<RwLock<T>> {
+    fn to_dispatcher(self) -> Arc<dyn Dispatch> {
+        FromArcRwlock::from_arc_rwlock(self)
+    }
 }
 
 /// Unused T is for avoiding violation of the orphan rule, like `ToDispatcher`
@@ -38,10 +63,7 @@ pub trait ToRemote<T: ?Sized + Service> {
 }
 
 // These functions are utilities for the generic traits above
-pub fn export_service<T: ?Sized + Service>(
-    context: &crate::context::Context,
-    service: impl ToDispatcher<T>,
-) -> HandleToExchange {
+pub fn export_service(context: &crate::context::Context, service: impl ToDispatcher) -> HandleToExchange {
     context.get_port().upgrade().unwrap().register(service.to_dispatcher())
 }
 
